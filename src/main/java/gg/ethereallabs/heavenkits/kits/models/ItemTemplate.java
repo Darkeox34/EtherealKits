@@ -10,11 +10,16 @@ import java.util.List;
 public class ItemTemplate {
     ItemStack item;
     HashSet<Enchantment> enchantments;
-    String name;
+    Component name;
     int qty;
     List<Component> lore;
 
-    public String getName(){
+    public ItemTemplate(ItemStack item, Component name){
+        this.item = item;
+        this.name = name;
+    }
+
+    public Component getName(){
         return name;
     }
 
@@ -40,7 +45,7 @@ public class ItemTemplate {
         this.enchantments.add(enchantments);
     }
 
-    public void setName(String name){
+    public void setName(Component name){
         this.name = name;
     }
 

@@ -44,13 +44,13 @@ public class KitsMenu extends BaseMenu {
             KitTemplate kit = entry.getValue();
 
             int slot = slotsList.get(i);
-            inv.setItem(slotsList.get(i), createItem(name, Material.BOOK, lore));
+            inv.setItem(slotsList.get(i), createItem(Component.text(name), Material.BOOK, lore));
             slotToKit.put(slot, kit);
 
             i++;
         }
 
-        inv.setItem(49, createItem("Crea un nuovo Kit", Material.EMERALD_BLOCK, Collections.emptyList()));
+        inv.setItem(49, createItem(Component.text("Crea un nuovo Kit"), Material.EMERALD_BLOCK, Collections.emptyList()));
     }
 
     private static @NotNull List<Component> getComponents(Map.Entry<String, KitTemplate> entry) {

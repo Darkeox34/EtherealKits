@@ -67,12 +67,12 @@ public abstract class BaseMenu implements Listener {
         }
     }
 
-    protected ItemStack createItem(String name, Material material, List<? extends Component> lore) {
+    protected ItemStack createItem(Component name, Material material, List<? extends Component> lore) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
-            meta.customName(Component.text(name));
+            meta.customName(name);
             meta.lore(lore);
             item.setItemMeta(meta);
         }

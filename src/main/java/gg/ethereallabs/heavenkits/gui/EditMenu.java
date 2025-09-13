@@ -2,13 +2,16 @@ package gg.ethereallabs.heavenkits.gui;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
+import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.ItemTemplate;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -41,7 +44,7 @@ public class EditMenu extends BaseMenu {
             if (i >= slotsList.size()) {
                 break;
             }
-            String name = entry.getName();
+            Component name = entry.getName();
             List<Component> lore = getComponents();
             int slot = slotsList.get(i);
             slotToItem.put(slot, entry);
@@ -49,7 +52,7 @@ public class EditMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(49, createItem("Aggiungi un nuovo item", Material.EMERALD_BLOCK, Collections.emptyList()));
+        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item"), Material.EMERALD_BLOCK, Collections.emptyList()));
     }
 
     private static @NotNull List<Component> getComponents() {
@@ -72,15 +75,92 @@ public class EditMenu extends BaseMenu {
 
             if (leftClick && shiftClick) {
                 HeavenKits.sendMessage(p, "Hai iniziato a rinominare l'item: " + item.getName());
+                handleRenameItem(p, item);
             } else if (rightClick && shiftClick) {
                 HeavenKits.sendMessage(p, "Hai iniziato a modificare la quantità di: " + item.getName());
+                handleChangeQty(p, item);
             } else if (leftClick) {
                 HeavenKits.sendMessage(p, "Hai iniziato a modificare gli enchantment di: " + item.getName());
             } else if (rightClick) {
                 HeavenKits.sendMessage(p,"Hai cliccato per eliminare l'item: " + item.getName());
+                handleRemoveItem(p, item);
             }
         } else if (slot == 49) {
-            HeavenKits.sendMessage(p,"Hai cliccato su Aggiungi un nuovo item");
+            handleAddItem(p);
         }
+    }
+
+    void handleChangeQty(Player p, ItemTemplate item) {
+        ChatPrompts.getInstance().ask(p, "Inserire la quantità dell'item (max. 64) ", (player, message) -> {
+            if (kit == null || item == null) return;
+
+            int qty;
+            try {
+                qty = Integer.parseInt(message);
+            } catch (NumberFormatException e) {
+                HeavenKits.sendMessage(player, "Valore non valido! Inserisci un numero.");
+                new EditMenu(kit).open(player);
+                return;
+            }
+
+            if (qty < 1) qty = 1;
+            if (qty > 64) qty = 64;
+
+            item.setQty(qty);
+            HeavenKits.sendMessage(player, "Quantità aggiornata a " + qty);
+
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleRemoveItem(Player p, ItemTemplate item) {
+        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere l'item? ", (player, message) -> {
+            if (kit == null) return;
+
+            if (item == null) return;
+
+            if (message.equalsIgnoreCase("si") || message.equalsIgnoreCase("sì")) {
+                kit.getItems().remove(item);
+                HeavenKits.sendMessage(p, "Hai rimosso l'item: " + item.getName());
+            }
+
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleRenameItem(Player p, ItemTemplate item) {
+        ChatPrompts.getInstance().ask(p, "Inserire il nuovo nome dell'item: ", (player, message) -> {
+            if (kit == null) return;
+
+            if (item == null) return;
+
+            Component newName = mm.deserialize(message);
+
+            item.setName(newName);
+
+            HeavenKits.sendMessage(p, "Hai modificato il nome dell'item in: " + newName);
+
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleAddItem(Player p){
+        ChatPrompts.getInstance().ask(p, "Inserire l'item da aggiungere: ", (player, message) -> {
+            if (kit == null) return;
+
+            Material mat = Material.getMaterial(message.toUpperCase());
+            if (mat == null) {
+                HeavenKits.sendMessage(player, "Item non valido!");
+                new EditMenu(kit).open(player);
+                return;
+            }
+
+            ItemStack newItem = new ItemStack(mat);
+
+            kit.getItems().add(new ItemTemplate(newItem, newItem.displayName()));
+            HeavenKits.sendMessage(player, "Item aggiunto al kit: " + mat.name());
+
+            new EditMenu(kit).open(player);
+        });
     }
 }
