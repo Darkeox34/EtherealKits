@@ -1,0 +1,60 @@
+package gg.ethereallabs.heavenkits.gui;
+
+import gg.ethereallabs.heavenkits.HeavenKits;
+import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+
+public class ChatPrompts implements Listener {
+
+    private record Flow(BiConsumer<Player, String> step) {
+        public void execute(Player player, String message) {
+            if (message != null) {
+                step.accept(player, message);
+            }
+        }
+    }
+
+    private final Map<UUID, Flow> pending = new HashMap<>();
+
+    public void ask(Player player, String question, BiConsumer<Player, String> onAnswer) {
+        player.closeInventory();
+        player.sendMessage("§b» " + question + " §7(undo: §c!cancel§7)");
+        pending.put(player.getUniqueId(), new Flow(onAnswer));
+    }
+
+    public void cancel(Player player) {
+        pending.remove(player.getUniqueId());
+        player.sendMessage("§7Operation cancelled.");
+    }
+
+    @EventHandler
+    public void onChat(AsyncChatEvent event) {
+        Player player = event.getPlayer();
+        Flow flow = pending.get(player.getUniqueId());
+        if (flow == null) return;
+
+        event.setCancelled(true);
+
+        String msg = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
+
+        if (msg.equalsIgnoreCase("!cancel")) {
+            cancel(player);
+            return;
+        }
+
+        pending.remove(player.getUniqueId());
+        Bukkit.getScheduler().runTask(HeavenKits.instance, () -> flow.execute(player, msg));
+    }
+}
