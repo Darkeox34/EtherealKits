@@ -3,12 +3,11 @@ package gg.ethereallabs.heavenkits.commands;
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.commands.abs.BaseCommand;
 import gg.ethereallabs.heavenkits.commands.abs.CommandHandler;
+import gg.ethereallabs.heavenkits.commands.subcommands.KitsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -17,7 +16,9 @@ import java.util.List;
 public class CommandRegistry implements CommandExecutor, TabCompleter {
     private final Map<String, CommandHandler> commands = new HashMap<>();
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    public CommandRegistry() {
+        registerCommand(new KitsCommand());
+    }
 
     private void registerCommand(BaseCommand handler) {
         commands.put(handler.getName(), handler);
@@ -40,7 +41,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
         if (handler != null) {
             return handler.execute(sender, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sendMessage(sender, "<red>Unknown command! Write /sld help to have a list of all commands.");
+            sendMessage(sender, "<red>Comando non trovato! Scrivi /hk help per avere una lista di tutti i comandi.");
             return true;
         }
     }

@@ -1,22 +1,20 @@
-package gg.ethereallabs.heavenkits.gui;
+package gg.ethereallabs.heavenkits.gui.models;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerChatEvent;
-
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 public class ChatPrompts implements Listener {
+
+    private static final ChatPrompts instance = new ChatPrompts();
 
     private record Flow(BiConsumer<Player, String> step) {
         public void execute(Player player, String message) {
@@ -26,7 +24,11 @@ public class ChatPrompts implements Listener {
         }
     }
 
-    private final Map<UUID, Flow> pending = new HashMap<>();
+    private final Map<UUID, Flow> pending = new ConcurrentHashMap<>();
+
+    public static ChatPrompts getInstance() {
+        return instance;
+    }
 
     public void ask(Player player, String question, BiConsumer<Player, String> onAnswer) {
         player.closeInventory();

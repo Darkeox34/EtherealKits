@@ -4,7 +4,6 @@ import gg.ethereallabs.heavenkits.HeavenKits;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -48,15 +47,14 @@ public abstract class BaseMenu implements Listener {
 
     public abstract void draw(Player p);
 
-    public abstract void handleClick(Player p, int slot, Triple<Boolean, Boolean, Boolean> clickFlags);
+    public abstract void handleClick(Player p, int slot, InventoryClickEvent e);
 
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
         if (inv == null || e.getClickedInventory() != inv) return;
         e.setCancelled(true);
-        Triple<Boolean, Boolean, Boolean> clickFlags = new Triple<>(e.isLeftClick(), e.isRightClick(), e.isShiftClick());
-        handleClick(p, e.getSlot(), clickFlags);
+        handleClick(p, e.getSlot(), e);
     }
 
     @EventHandler
@@ -70,7 +68,7 @@ public abstract class BaseMenu implements Listener {
     }
 
     protected ItemStack createItem(String name, Material material, List<? extends Component> lore) {
-        ItemStack item = new ItemStack(Material.BOOK);
+        ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
 
         if (meta != null) {
@@ -80,8 +78,5 @@ public abstract class BaseMenu implements Listener {
         }
 
         return item;
-    }
-
-    public record Triple<A, B, C>(A first, B second, C third) {
     }
 }

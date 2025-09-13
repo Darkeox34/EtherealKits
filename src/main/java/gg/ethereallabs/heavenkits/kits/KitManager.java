@@ -17,6 +17,10 @@ public class KitManager {
         return kits;
     }
 
+    public KitTemplate getKit(String kitName) {
+        return kits.get(kitName);
+    }
+
     public void createKit(String name){
         KitTemplate newTemplate = new KitTemplate(name);
 

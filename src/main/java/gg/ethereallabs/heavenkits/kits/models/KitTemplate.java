@@ -2,6 +2,7 @@ package gg.ethereallabs.heavenkits.kits.models;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class KitTemplate {
@@ -14,6 +15,7 @@ public class KitTemplate {
 
     public KitTemplate(String name) {
         this.name = name;
+        this.items = new ArrayList<>();
     }
 
     public String getName() { return name; }

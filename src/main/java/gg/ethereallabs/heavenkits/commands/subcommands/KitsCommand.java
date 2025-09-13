@@ -2,7 +2,11 @@ package gg.ethereallabs.heavenkits.commands.subcommands;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.commands.abs.BaseCommand;
+import gg.ethereallabs.heavenkits.gui.EditMenu;
+import gg.ethereallabs.heavenkits.gui.KitsMenu;
+import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -15,6 +19,7 @@ public class KitsCommand extends BaseCommand {
     public boolean execute(CommandSender sender, String[] args) {
         if (args.length == 0) {
             sendMessage(sender, "<red>");
+            return true;
         }
 
         switch(args[0]){
@@ -34,7 +39,10 @@ public class KitsCommand extends BaseCommand {
                 handleRename(sender, args);
                 break;
             case "edit":
-                sendMessage(sender, "<red>");
+                handleEdit(sender, args);
+                break;
+            case "gui":
+                handleGui(sender, args);
                 break;
             default:
                 sendMessage(sender, "<red>");
@@ -47,9 +55,36 @@ public class KitsCommand extends BaseCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return List.of("help", "list", "create", "delete", "rename", "edit");
+            return List.of("help", "list", "create", "delete", "rename", "edit", "gui");
         }
         return List.of();
+    }
+
+    public void handleGui(CommandSender sender, String[] args){
+        if(!(sender instanceof Player player)){
+            sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
+            return;
+        }
+
+        KitsMenu kitsMenu = new KitsMenu();
+        kitsMenu.open(player);
+    }
+
+    public void handleEdit(CommandSender sender, String[] args) {
+        if(!(sender instanceof Player player)){
+            sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
+            return;
+        }
+
+        if (args.length == 0) {
+            sendMessage(sender, "<red>");
+            return;
+        }
+
+        KitTemplate toEdit = HeavenKits.kitManager.getKit(args[0]);
+
+        EditMenu menu = new EditMenu(toEdit);
+        menu.open(player);
     }
 
     public void handleCreate(CommandSender sender, String[] args){
@@ -58,12 +93,12 @@ public class KitsCommand extends BaseCommand {
             return;
         }
 
-        if(args.length != 1) {
+        if(args.length != 2) {
             sendMessage(sender, "<red>");
             return;
         }
 
-        HeavenKits.kitManager.createKit(args[0]);
+        HeavenKits.kitManager.createKit(args[1]);
     }
 
     public void handleList(CommandSender sender, String[] args){
