@@ -20,6 +20,11 @@ public class AdminCommand extends BaseCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("hk.commands.admin")) {
+            sendMessage(sender, "<red>Non hai il permesso di eseguire questo comando!");
+            return true;
+        }
+
         if (args.length == 0) {
             helpMessage(sender);
             return true;

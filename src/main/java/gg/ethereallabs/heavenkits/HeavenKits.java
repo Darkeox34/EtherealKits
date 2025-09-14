@@ -3,6 +3,7 @@ package gg.ethereallabs.heavenkits;
 import com.mongodb.client.MongoCollection;
 import gg.ethereallabs.heavenkits.commands.CommandRegistry;
 import gg.ethereallabs.heavenkits.data.MongoDB;
+import gg.ethereallabs.heavenkits.events.PlayerEvents;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.KitManager;
 import net.kyori.adventure.text.Component;
@@ -40,10 +41,21 @@ public final class HeavenKits extends JavaPlugin {
         getLogger().info("Caricati " + kitManager.getKits().size() + " kit dal database.");
 
         Bukkit.getPluginManager().registerEvents(ChatPrompts.getInstance(), this);
-
+        Bukkit.getPluginManager().registerEvents(new PlayerEvents(), this);
         CommandRegistry mainCommand = new CommandRegistry();
         Objects.requireNonNull(getCommand("hk")).setExecutor(mainCommand);
         Objects.requireNonNull(getCommand("hk")).setTabCompleter(mainCommand);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            kitManager.cleanExpiredCooldowns();
+        }, 0L, 72000L);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(this, () -> {
+            long now = System.currentTimeMillis();
+            kitManager.getCooldowns().forEach((uuid, playerCooldowns) -> {
+                playerCooldowns.entrySet().removeIf(e -> e.getValue() <= now);
+            });
+        }, 20L * 60, 20L * 60);
     }
 
     @Override
@@ -128,4 +140,5 @@ public final class HeavenKits extends JavaPlugin {
 
         return sb.toString().trim();
     }
+
 }

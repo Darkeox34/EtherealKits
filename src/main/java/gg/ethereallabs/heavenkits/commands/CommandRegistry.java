@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.List;
 
+import static gg.ethereallabs.heavenkits.HeavenKits.mm;
+
 public class CommandRegistry implements CommandExecutor, TabCompleter {
     private final Map<String, CommandHandler> commands = new HashMap<>();
 
@@ -29,6 +31,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("heavenkits.hk")) {
+            sendMessage(sender, "<red>Non hai il permesso di eseguire questo comando!");
             return true;
         }
 
@@ -74,9 +77,9 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
     }
 
     public static void sendDefaultMessage(CommandSender sender) {
-        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>");
-        sendMessage(sender, "<yellow>/hk kits help</yellow> <gray>- Mostra tutti i comandi disponibili");
-        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>=======================================================</gradient>");
+        sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
+        sender.sendMessage(mm.deserialize("<yellow>/hk kits help</yellow> <gray>- Mostra tutti i comandi disponibili"));
+        sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>================================================</gradient>"));
     }
 
     public static void sendMessage(CommandSender sender, String message) {

@@ -62,13 +62,18 @@ public class KitsMenu extends BaseMenu {
     }
 
     private long getTimeLeft(Player player, KitTemplate kit) {
-        if (kitManager.getCooldowns().containsKey(player.getName())) {
-            long lastUsed = kitManager.getCooldowns().get(player.getName());
-            long currentTime = System.currentTimeMillis();
-            return Math.max(0, kit.getCooldown() - (currentTime - lastUsed));
-        }
-        return 0;
+        UUID uuid = player.getUniqueId();
+
+        Map<String, Long> playerCooldowns = kitManager.getCooldowns().get(uuid);
+        if (playerCooldowns == null) return 0;
+
+        Long cooldownUntil = playerCooldowns.get(kit.getName());
+        if (cooldownUntil == null) return 0;
+
+        long currentTime = System.currentTimeMillis();
+        return Math.max(0, cooldownUntil - currentTime);
     }
+
 
     private void startCooldownUpdater(Player player) {
         new BukkitRunnable() {
@@ -109,10 +114,10 @@ public class KitsMenu extends BaseMenu {
         if (!player.hasPermission(kit.getPermission())) {
             components.add(mm.deserialize("<red>Non hai il permesso di riscuotere questo Kit!")
                     .decoration(TextDecoration.ITALIC, false));
-            components.add(mm.deserialize("Visita il nostro store per scoprire i nostri pacchetti!")
+            components.add(mm.deserialize("Visita il nostro store per scoprire i nostri pacchetti!").color(NamedTextColor.GREEN)
                     .decoration(TextDecoration.ITALIC, false));
         } else {
-            if (timeLeftMs <= 0) {
+            if (timeLeftMs <= 0 || player.hasPermission("hk.cooldown.bypass")) {
                 components.add(mm.deserialize("<green>Riscuoti Ora!").decoration(TextDecoration.ITALIC, false));
             } else {
                 components.add(mm.deserialize("<yellow>Cooldown: " + formatRemainingTime(timeLeftMs))

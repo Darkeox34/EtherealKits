@@ -14,6 +14,11 @@ public class KitsCommand extends BaseCommand {
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("hk.commands.kits")) {
+            sendMessage(sender, "<red>Non hai il permesso di eseguire questo comando!");
+            return true;
+        }
+
         if(!(sender instanceof Player player)){
             sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
             return true;
