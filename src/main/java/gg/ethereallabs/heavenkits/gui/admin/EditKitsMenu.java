@@ -96,7 +96,9 @@ public class EditKitsMenu extends BaseMenu {
 
     void handleKitCreation(Player p){
         ChatPrompts.getInstance().ask(p, "Inserire il nome del Kit", (player, message) -> {
-            kitManager.createKit(message, player);
+            if(!kitManager.createKit(message, player))
+                return;
+
 
             Component kitCreated = Component.text()
                     .append(Component.text("Kit '").color(NamedTextColor.GREEN))
