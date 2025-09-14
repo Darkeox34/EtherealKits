@@ -5,10 +5,13 @@ import gg.ethereallabs.heavenkits.commands.abs.BaseCommand;
 import gg.ethereallabs.heavenkits.gui.EditMenu;
 import gg.ethereallabs.heavenkits.gui.KitsMenu;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
+import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+
+import static gg.ethereallabs.heavenkits.HeavenKits.sendMessage;
 
 public class KitsCommand extends BaseCommand {
     public KitsCommand() {
@@ -24,7 +27,7 @@ public class KitsCommand extends BaseCommand {
 
         switch(args[0]){
             case "help":
-                sendMessage(sender, "<red>");
+                helpMessage(sender);
                 break;
             case "list":
                 handleList(sender, args);
@@ -45,7 +48,7 @@ public class KitsCommand extends BaseCommand {
                 handleGui(sender, args);
                 break;
             default:
-                sendMessage(sender, "<red>");
+                sendMessage(sender, "<red>Comando non riconosciuto! Usa <yellow>/hk kits help</yellow> per vedere tutti i comandi disponibili.");
                 break;
         }
 
@@ -55,8 +58,33 @@ public class KitsCommand extends BaseCommand {
     @Override
     public List<String> tabComplete(CommandSender sender, String[] args) {
         if (args.length == 1) {
-            return List.of("help", "list", "create", "delete", "rename", "edit", "gui");
+            List<String> commands = List.of("help", "list", "create", "delete", "rename", "edit", "gui");
+            return commands.stream()
+                    .filter(cmd -> cmd.toLowerCase().startsWith(args[0].toLowerCase()))
+                    .toList();
         }
+
+        if (args.length == 2) {
+            String subCommand = args[0].toLowerCase();
+            switch (subCommand) {
+                case "delete":
+                case "rename":
+                case "edit":
+                    return HeavenKits.kitManager.getKits().keySet().stream()
+                            .filter(kitName -> kitName.toLowerCase().startsWith(args[1].toLowerCase()))
+                            .toList();
+                case "create":
+                    return List.of("<nome_kit>");
+            }
+        }
+
+        if (args.length == 3) {
+            String subCommand = args[0].toLowerCase();
+            if ("rename".equals(subCommand)) {
+                return List.of("<nuovo_nome>");
+            }
+        }
+
         return List.of();
     }
 
@@ -65,9 +93,8 @@ public class KitsCommand extends BaseCommand {
             sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
             return;
         }
-
-        KitsMenu kitsMenu = new KitsMenu();
-        kitsMenu.open(player);
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+        new KitsMenu().open(player);
     }
 
     public void handleEdit(CommandSender sender, String[] args) {
@@ -76,59 +103,91 @@ public class KitsCommand extends BaseCommand {
             return;
         }
 
-        if (args.length == 0) {
-            sendMessage(sender, "<red>");
+        if (args.length != 2) {
+            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits edit <nome_kit>");
             return;
         }
 
-        KitTemplate toEdit = HeavenKits.kitManager.getKit(args[0]);
+        KitTemplate toEdit = HeavenKits.kitManager.getKit(args[1]);
 
-        EditMenu menu = new EditMenu(toEdit);
-        menu.open(player);
+        if (toEdit == null) {
+            sendMessage(sender, "<red>Kit '<yellow>" + args[1] + "</yellow>' non trovato!");
+            return;
+        }
+
+        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+        new EditMenu(toEdit).open(player);
     }
 
     public void handleCreate(CommandSender sender, String[] args){
-        if (args.length == 0) {
-            sendMessage(sender, "<red>");
+        if (args.length != 2) {
+            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits create <nome_kit>");
             return;
         }
 
-        if(args.length != 2) {
-            sendMessage(sender, "<red>");
-            return;
-        }
+        String kitName = args[1];
 
-        HeavenKits.kitManager.createKit(args[1]);
+        boolean succ = HeavenKits.kitManager.createKit(args[1], sender);
+        if (!succ) {
+            if(sender instanceof Player player){
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+            }
+            sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' creato con successo!");
+        }
     }
 
     public void handleList(CommandSender sender, String[] args){
+        if (HeavenKits.kitManager.getKits().isEmpty()) {
+            sendMessage(sender, "<yellow>Nessun kit disponibile.");
+            return;
+        }
+
         HeavenKits.kitManager.listKits(sender);
     }
-
     public void handleDelete(CommandSender sender, String[] args){
-        if (args.length == 0) {
-            sendMessage(sender, "<red>");
+        if (args.length < 1) {
+            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits delete <nome_kit>");
             return;
         }
 
-        if(args.length != 1) {
-            sendMessage(sender, "<red>");
+        String kitName = args[1];
+
+        if (HeavenKits.kitManager.getKit(kitName) == null) {
+            sendMessage(sender, "<red>Kit '<yellow>" + kitName + "</yellow>' non trovato!");
             return;
         }
 
-        HeavenKits.kitManager.deleteKit(args[0]);
+        HeavenKits.kitManager.deleteKit(kitName);
+        sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' eliminato con successo!");
     }
 
     public void handleRename(CommandSender sender, String[] args){
-        if (args.length == 0) {
-            sendMessage(sender, "<red>");
-            return;
-        }
-        if(args.length != 2) {
-            sendMessage(sender, "<red>");
+        if (args.length < 2) {
+            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits rename <nome_attuale> <nuovo_nome>");
             return;
         }
 
-        HeavenKits.kitManager.renameKit(args[0], args[1]);
+        String oldName = args[1];
+        String newName = args[2];
+
+        boolean succ = HeavenKits.kitManager.renameKit(oldName, newName, sender);
+
+        if (!succ) {
+            if(sender instanceof Player player){
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
+            }
+            sendMessage(sender, "<green>Kit '<yellow>" + oldName + "</yellow>' rinominato in '<yellow>" + newName + "</yellow>'!");
+        }
+    }
+
+    private void helpMessage(CommandSender sender) {
+        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>");
+        sendMessage(sender, "<yellow>/hk kits list</yellow> <gray>- Mostra tutti i kit disponibili");
+        sendMessage(sender, "<yellow>/hk kits create <nome></yellow> <gray>- Crea un nuovo kit");
+        sendMessage(sender, "<yellow>/hk kits delete <nome></yellow> <gray>- Elimina un kit esistente");
+        sendMessage(sender, "<yellow>/hk kits rename <nome> <nuovo_nome></yellow> <gray>- Rinomina un kit");
+        sendMessage(sender, "<yellow>/hk kits edit <nome></yellow> <gray>- Modifica un kit (solo giocatori)");
+        sendMessage(sender, "<yellow>/hk kits gui</yellow> <gray>- Apri l'interfaccia grafica (solo giocatori)");
+        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>===================================================</gradient>");
     }
 }

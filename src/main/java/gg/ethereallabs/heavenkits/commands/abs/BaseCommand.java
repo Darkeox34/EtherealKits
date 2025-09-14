@@ -8,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 
 public abstract class BaseCommand implements CommandHandler {
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private final String name;
     public BaseCommand(String name) {
         this.name = name;

@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import static gg.ethereallabs.heavenkits.HeavenKits.mm;
+
 public class EditMenu extends BaseMenu {
     private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
             .boxed()
             .toList();
 
     KitTemplate kit;
-    private static final MiniMessage mm = MiniMessage.miniMessage();
     private final Map<Integer, ItemTemplate> slotToItem = new HashMap<>();
 
     public EditMenu(KitTemplate kitTemplate) {
@@ -37,6 +38,7 @@ public class EditMenu extends BaseMenu {
     @Override
     public void draw(Player p) {
         inv.clear();
+        slotToItem.clear();
         List<ItemTemplate> items = kit.getItems();
 
         int i = 0;
@@ -48,11 +50,11 @@ public class EditMenu extends BaseMenu {
             List<Component> lore = getComponents();
             int slot = slotsList.get(i);
             slotToItem.put(slot, entry);
-            inv.setItem(slotsList.get(i), createItem(name, entry.getItem().getType(), lore));
+            inv.setItem(slotsList.get(i), createItem(name, entry.getItem().getType(), lore, entry.getQty(), entry.getEnchantments()));
             i++;
         }
 
-        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item"), Material.EMERALD_BLOCK, Collections.emptyList()));
+        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item"), Material.EMERALD_BLOCK, Collections.emptyList(), 1));
     }
 
     private static @NotNull List<Component> getComponents() {
@@ -81,6 +83,7 @@ public class EditMenu extends BaseMenu {
                 handleChangeQty(p, item);
             } else if (leftClick) {
                 HeavenKits.sendMessage(p, "Hai iniziato a modificare gli enchantment di: " + item.getName());
+                handleEditEnchant(p, item);
             } else if (rightClick) {
                 HeavenKits.sendMessage(p,"Hai cliccato per eliminare l'item: " + item.getName());
                 handleRemoveItem(p, item);
@@ -88,6 +91,10 @@ public class EditMenu extends BaseMenu {
         } else if (slot == 49) {
             handleAddItem(p);
         }
+    }
+
+    void handleEditEnchant(Player p, ItemTemplate item) {
+        new EnchantmentsMenu(item).open(p);
     }
 
     void handleChangeQty(Player p, ItemTemplate item) {
@@ -114,7 +121,7 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleRemoveItem(Player p, ItemTemplate item) {
-        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere l'item? ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere l'item? (sì|no)", (player, message) -> {
             if (kit == null) return;
 
             if (item == null) return;
@@ -156,8 +163,8 @@ public class EditMenu extends BaseMenu {
             }
 
             ItemStack newItem = new ItemStack(mat);
-
-            kit.getItems().add(new ItemTemplate(newItem, newItem.displayName()));
+            Component defaultName = mm.deserialize("<white>" + newItem.displayName() + "</white>");
+            kit.getItems().add(new ItemTemplate(newItem, defaultName));
             HeavenKits.sendMessage(player, "Item aggiunto al kit: " + mat.name());
 
             new EditMenu(kit).open(player);

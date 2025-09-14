@@ -71,11 +71,10 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
         return handler.tabComplete(sender, Arrays.copyOfRange(args, 1, args.length));
     }
 
-    private void sendDefaultMessage(CommandSender sender) {
-        sender.sendMessage("§3§m----------------====§8§b SLDungeons§3§m====-------------");
-        sender.sendMessage("§3MCLeveling dungeon plugin.");
-        sender.sendMessage("§3/sld§7 help ➛ Have a list of plugin commands");
-        sender.sendMessage("§3§m-----------------§8 Author@Darkeox34 §3§m-----------------");
+    public static void sendDefaultMessage(CommandSender sender) {
+        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>");
+        sendMessage(sender, "<yellow>/hk kits help</yellow> <gray>- Mostra tutti i comandi disponibili");
+        sendMessage(sender, "<gradient:#8A2BE2:#FF00FF>=======================================================</gradient>");
     }
 
     public static void sendMessage(CommandSender sender, String message) {

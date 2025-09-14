@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
@@ -15,10 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class BaseMenu implements Listener {
 
@@ -67,13 +65,31 @@ public abstract class BaseMenu implements Listener {
         }
     }
 
-    protected ItemStack createItem(Component name, Material material, List<? extends Component> lore) {
+    protected ItemStack createItem(Component name, Material material, List<Component> lore, int qty) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
-
+        item.setAmount(qty);
         if (meta != null) {
             meta.customName(name);
             meta.lore(lore);
+            item.setItemMeta(meta);
+        }
+
+        return item;
+    }
+
+    protected ItemStack createItem(Component name, Material material, List<Component> lore, int qty, Map<Enchantment, Integer> enchants) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+        item.setAmount(qty);
+        if (meta != null) {
+            meta.customName(name);
+            meta.lore(lore);
+
+            if (enchants != null) {
+                enchants.forEach((enchant, level) -> meta.addEnchant(enchant, level, false));
+            }
+
             item.setItemMeta(meta);
         }
 

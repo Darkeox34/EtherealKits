@@ -4,15 +4,17 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class ItemTemplate {
-    ItemStack item;
-    HashSet<Enchantment> enchantments;
-    Component name;
-    int qty;
-    List<Component> lore;
+    private ItemStack item;
+    private Map<Enchantment, Integer> enchantments = new HashMap<>();
+    private Component name;
+    private int qty = 1;
+    private List<Component> lore;
 
     public ItemTemplate(ItemStack item, Component name){
         this.item = item;
@@ -30,19 +32,29 @@ public class ItemTemplate {
     public int getQty(){
         return qty;
     }
+
     public ItemStack getItem(){
         return item;
     }
-    public HashSet<Enchantment> getEnchantments(){
+
+    public Map<Enchantment, Integer> getEnchantments(){
         return enchantments;
+    }
+
+    public int getEnchantmentLevel(Enchantment enchantment){
+        return this.enchantments.getOrDefault(enchantment, 0);
     }
 
     public void setItem(ItemStack item){
         this.item = item;
     }
 
-    public void setEnchantments(Enchantment enchantments){
-        this.enchantments.add(enchantments);
+    public void addEnchantment(Enchantment enchantment, int level){
+        this.enchantments.put(enchantment, level);
+    }
+
+    public void removeEnchantment(Enchantment enchantment){
+        this.enchantments.remove(enchantment);
     }
 
     public void setName(Component name){

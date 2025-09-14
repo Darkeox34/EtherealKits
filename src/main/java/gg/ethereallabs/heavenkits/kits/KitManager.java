@@ -6,6 +6,8 @@ import org.bukkit.command.CommandSender;
 
 import java.util.HashMap;
 
+import static gg.ethereallabs.heavenkits.HeavenKits.sendMessage;
+
 public class KitManager {
     private final HashMap<String, KitTemplate> kits;
 
@@ -21,14 +23,20 @@ public class KitManager {
         return kits.get(kitName);
     }
 
-    public void createKit(String name){
+    public boolean createKit(String name, CommandSender sender) {
+        if (HeavenKits.kitManager.getKit(name) != null) {
+            sendMessage(sender, "<red>Un kit con il nome '<yellow>" + name + "</yellow>' esiste già!");
+            return false;
+        }
+
         KitTemplate newTemplate = new KitTemplate(name);
 
         kits.put(name, newTemplate);
+        return true;
     }
 
     public void listKits(CommandSender sender){
-        HeavenKits.sendMessage(sender, "Available Kits: ");
+        sendMessage(sender, "Available Kits: ");
         kits.forEach((name, template) -> {
             sender.sendMessage("- " + name);
         });
@@ -38,9 +46,20 @@ public class KitManager {
         kits.remove(name);
     }
 
-    public void renameKit(String name, String newName){
+    public boolean renameKit(String name, String newName, CommandSender sender){
+        if (HeavenKits.kitManager.getKit(name) == null) {
+            sendMessage(sender, "<red>Kit '<yellow>" + name + "</yellow>' non trovato!");
+            return false;
+        }
+
+        if (HeavenKits.kitManager.getKit(newName) != null) {
+            sendMessage(sender, "<red>Un kit con il nome '<yellow>" + newName + "</yellow>' esiste già!");
+            return false;
+        }
+
         KitTemplate temp = kits.remove(name);
 
         kits.put(newName, temp);
+        return true;
     }
 }

@@ -2,6 +2,7 @@ package gg.ethereallabs.heavenkits.gui;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
+import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -16,13 +17,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static gg.ethereallabs.heavenkits.HeavenKits.*;
+
 public class KitsMenu extends BaseMenu {
     private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
             .boxed()
             .toList();
 
     private final Map<Integer, KitTemplate> slotToKit = new HashMap<>();
-    private static final MiniMessage mm = MiniMessage.miniMessage();
 
     public KitsMenu() {
         super("Kits", 54);
@@ -44,13 +46,13 @@ public class KitsMenu extends BaseMenu {
             KitTemplate kit = entry.getValue();
 
             int slot = slotsList.get(i);
-            inv.setItem(slotsList.get(i), createItem(Component.text(name), Material.BOOK, lore));
+            inv.setItem(slotsList.get(i), createItem(Component.text(name), Material.BOOK, lore, 1));
             slotToKit.put(slot, kit);
 
             i++;
         }
 
-        inv.setItem(49, createItem(Component.text("Crea un nuovo Kit"), Material.EMERALD_BLOCK, Collections.emptyList()));
+        inv.setItem(49, createItem(Component.text("Crea un nuovo Kit"), Material.EMERALD_BLOCK, Collections.emptyList(), 1));
     }
 
     private static @NotNull List<Component> getComponents(Map.Entry<String, KitTemplate> entry) {
@@ -61,7 +63,6 @@ public class KitsMenu extends BaseMenu {
                 mm.deserialize("<gray>Shift-Left-Click: Rinomina"),
                 mm.deserialize("<gray>Right-Click: Rimuovi"),
                 Component.empty(),
-                mm.deserialize("<yellow>Descrizione: " + kit.getDescription()),
                 mm.deserialize("<yellow>Cooldown: " + kit.getCooldown()),
                 mm.deserialize("<yellow>Permesso: " + kit.getPermission())
         );
@@ -77,16 +78,21 @@ public class KitsMenu extends BaseMenu {
             boolean rightClick = e.isRightClick();
 
             if (leftClick && shiftClick) {
-                HeavenKits.sendMessage(p, "Hai iniziato a rinominare il kit: " + kit.getName());
+                sendMessage(p, "Hai iniziato a rinominare il kit: " + kit.getName());
             } else if (leftClick) {
-                HeavenKits.sendMessage(p, "Hai iniziato a modificare il kit: " + kit.getName());
-                EditMenu menu = new EditMenu(kit);
-                menu.open(p);
+                new EditMenu(kit).open(p);
             } else if (rightClick) {
-                HeavenKits.sendMessage(p,"Hai cliccato per eliminare il kit: " + kit.getName());
+                sendMessage(p,"Hai cliccato per eliminare il kit: " + kit.getName());
             }
         } else if (slot == 49) {
-            HeavenKits.sendMessage(p,"Hai cliccato su Crea un nuovo Kit");
+            handleKitCreation(p);
         }
+    }
+
+    void handleKitCreation(Player p){
+        ChatPrompts.getInstance().ask(p, "Inserire il nome del Kit", (player, message) -> {
+            kitManager.createKit(message, player);
+            sendMessage(player, "<green>Kit '<yellow>" + message + "</yellow>' creato con successo!");
+        });
     }
 }

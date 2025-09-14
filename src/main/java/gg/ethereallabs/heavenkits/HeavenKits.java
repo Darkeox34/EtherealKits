@@ -14,7 +14,7 @@ import java.util.Objects;
 public final class HeavenKits extends JavaPlugin {
     public static HeavenKits instance;
     public static KitManager kitManager;
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    public static final MiniMessage mm = MiniMessage.miniMessage();
 
 
     @Override
@@ -35,7 +35,7 @@ public final class HeavenKits extends JavaPlugin {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
-        Component component = MINI_MESSAGE.deserialize("<gradient:#8A2BE2:#FF00FF:#00FF7F:#FFFF00:#FFA500>HeavenKits ></gradient> <dark_aqua>" + message);
+        Component component = mm.deserialize("<gradient:#8A2BE2:#FF00FF:#00FF7F:#FFFF00:#FFA500>HeavenKits ></gradient> <dark_aqua>" + message);
         sender.sendMessage(component);
     }
 }
