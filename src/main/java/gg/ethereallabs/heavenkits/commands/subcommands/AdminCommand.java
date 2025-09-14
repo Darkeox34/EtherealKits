@@ -92,7 +92,6 @@ public class AdminCommand extends BaseCommand {
             sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
             return;
         }
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
         new EditKitsMenu().open(player);
     }
 
@@ -157,6 +156,7 @@ public class AdminCommand extends BaseCommand {
         }
 
         HeavenKits.kitManager.deleteKit(kitName);
+
         sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' eliminato con successo!");
     }
 

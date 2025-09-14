@@ -115,6 +115,7 @@ public class EditKitsMenu extends BaseMenu {
         ChatPrompts.getInstance().ask(p, "Inserire il nuovo nome del Kit", (player, message) -> {
             kitManager.renameKit(kit.getName(), message, p);
             sendMessage(p, "<green>Kit '<yellow>" + kit.getName() + "</yellow>' rinominato in '<yellow>" + message + "</yellow>'!");
+            kitManager.updateKit(kit);
         });
     }
 
@@ -122,6 +123,7 @@ public class EditKitsMenu extends BaseMenu {
         ChatPrompts.getInstance().ask(p, "Inserire il nuovo DisplayName del Kit", (player, message) -> {
             kit.setDisplayName(mm.deserialize(message));
             sendMessage(p, Component.text("Hai cambiato il displayname in ").color(NamedTextColor.GREEN).append(kit.getDisplayName()));
+            kitManager.updateKit(kit);
         });
     }
 

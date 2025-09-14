@@ -1,13 +1,17 @@
 package gg.ethereallabs.heavenkits;
 
+import com.mongodb.client.MongoCollection;
 import gg.ethereallabs.heavenkits.commands.CommandRegistry;
+import gg.ethereallabs.heavenkits.data.MongoDB;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.KitManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -17,13 +21,23 @@ import java.util.regex.Pattern;
 public final class HeavenKits extends JavaPlugin {
     public static HeavenKits instance;
     public static KitManager kitManager;
+    public static MongoDB mongo;
     public static final MiniMessage mm = MiniMessage.miniMessage();
 
 
     @Override
     public void onEnable() {
         instance = this;
+
+        saveDefaultConfig();
+        FileConfiguration config = getConfig();
+
+        mongo = new MongoDB(config);
+
         kitManager = new KitManager();
+        kitManager.loadAllKits();
+
+        getLogger().info("Caricati " + kitManager.getKits().size() + " kit dal database.");
 
         Bukkit.getPluginManager().registerEvents(ChatPrompts.getInstance(), this);
 
@@ -34,7 +48,7 @@ public final class HeavenKits extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        mongo.close();
     }
 
     public static void sendMessage(CommandSender sender, String message) {
@@ -49,7 +63,7 @@ public final class HeavenKits extends JavaPlugin {
     }
 
     public static long parseTime(String input) throws IllegalArgumentException {
-        long totalSeconds = 0;
+        long totalMillis = 0;
         Pattern pattern = Pattern.compile("(\\d+)([smhd])");
         Matcher matcher = pattern.matcher(input.toLowerCase().replaceAll("\\s+", ""));
 
@@ -60,19 +74,20 @@ public final class HeavenKits extends JavaPlugin {
             String unit = matcher.group(2);
 
             switch (unit) {
-                case "s": totalSeconds += value; break;
-                case "m": totalSeconds += value * 60L; break;
-                case "h": totalSeconds += value * 3600L; break;
-                case "d": totalSeconds += value * 86400L; break;
+                case "s": totalMillis += value * 1000L; break;
+                case "m": totalMillis += value * 60_000L; break;
+                case "h": totalMillis += value * 3_600_000L; break;
+                case "d": totalMillis += value * 86_400_000L; break;
                 default: throw new IllegalArgumentException("Unità di tempo non valida: " + unit);
             }
         }
 
         if (!found) throw new IllegalArgumentException("Formato del tempo non valido: " + input);
-        return totalSeconds;
+        return totalMillis;
     }
 
-    public static String formatRemainingTime(long totalSeconds) {
+    public static String formatRemainingTime(long totalMillis) {
+        long totalSeconds = totalMillis / 1000;
         long day = totalSeconds / 86400;
         long hour = (totalSeconds % 86400) / 3600;
         long minute = (totalSeconds % 3600) / 60;
@@ -96,7 +111,9 @@ public final class HeavenKits extends JavaPlugin {
         return sb.toString();
     }
 
-    public static String formatTime(long totalSeconds) {
+
+    public static String formatTime(long totalMillis) {
+        long totalSeconds = totalMillis / 1000;
         long days = totalSeconds / 86400;
         long hours = (totalSeconds % 86400) / 3600;
         long minutes = (totalSeconds % 3600) / 60;

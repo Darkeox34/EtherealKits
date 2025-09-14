@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id("xyz.jpenilla.run-paper") version "2.3.1"
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'gg.ethereallabs'
@@ -16,12 +17,20 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    implementation 'org.mongodb:mongodb-driver-sync:4.11.0'
 }
 
 tasks {
     runServer {
         minecraftVersion("1.21")
     }
+}
+
+tasks.shadowJar {
+    archiveBaseName.set('HeavenKits')
+    archiveClassifier.set('')
+    archiveVersion.set('1.0')
+    mergeServiceFiles()
 }
 
 def targetJavaVersion = 21

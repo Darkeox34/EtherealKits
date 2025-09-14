@@ -1,5 +1,6 @@
 package gg.ethereallabs.heavenkits.kits.models;
 
+import gg.ethereallabs.heavenkits.HeavenKits;
 import net.kyori.adventure.text.Component;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -15,6 +16,8 @@ public class ItemTemplate {
     private Component name;
     private int qty = 1;
     private List<Component> lore;
+
+    private KitTemplate kit;
 
     public ItemTemplate(ItemStack item, Component name){
         this.item = item;
@@ -45,6 +48,10 @@ public class ItemTemplate {
         return this.enchantments.getOrDefault(enchantment, 0);
     }
 
+    public KitTemplate getKit(){
+        return kit;
+    }
+
     public void setItem(ItemStack item){
         this.item = item;
     }
@@ -67,5 +74,9 @@ public class ItemTemplate {
 
     public void setLore(List<Component> lore){
         this.lore = lore;
+    }
+
+    public void setKit(KitTemplate kit){
+        this.kit = kit;
     }
 }

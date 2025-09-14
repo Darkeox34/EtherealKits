@@ -1,5 +1,6 @@
 package gg.ethereallabs.heavenkits.kits.models;
 
+import gg.ethereallabs.heavenkits.HeavenKits;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -33,6 +34,7 @@ public class KitTemplate {
 
     public void setName(String name) {
         this.name = name;
+        HeavenKits.kitManager.updateKit(this);
     }
 
     public void setDisplayMaterial(Material displayMaterial) {
@@ -51,6 +53,7 @@ public class KitTemplate {
     }
 
     public void addItem(ItemTemplate item) {
+        item.setKit(this);
         items.add(item);
     }
 }

@@ -132,7 +132,7 @@ public class EditMenu extends BaseMenu {
             kit.setDisplayMaterial(mat);
 
             HeavenKits.sendMessage(player, mat.name() + " utilizzato come display material");
-
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -144,7 +144,7 @@ public class EditMenu extends BaseMenu {
             kit.setPermission(message);
 
             sendMessage(p, "Permesso impostato su " + message);
-
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -154,9 +154,10 @@ public class EditMenu extends BaseMenu {
             if (kit == null) return;
 
             try {
-                long cooldownSeconds = parseTime(message);
-                kit.setCooldown(cooldownSeconds);
-                sendMessage(p, "Cooldown impostato su " + formatTime(cooldownSeconds));
+                long cooldownMs = parseTime(message);
+                kit.setCooldown(cooldownMs);
+                sendMessage(p, "Cooldown impostato su " + formatTime(cooldownMs));
+                kitManager.updateKit(kit);
                 new EditMenu(kit).open(player);
             } catch (IllegalArgumentException e) {
                 player.sendMessage("Formato del tempo non valido! Esempio: (7d12h),(10m),(5h15m10s)");
@@ -176,7 +177,7 @@ public class EditMenu extends BaseMenu {
             try {
                 qty = Integer.parseInt(message);
             } catch (NumberFormatException e) {
-                HeavenKits.sendMessage(player, "Valore non valido! Inserisci un numero.");
+                sendMessage(player, "Valore non valido! Inserisci un numero.");
                 new EditMenu(kit).open(player);
                 return;
             }
@@ -185,8 +186,9 @@ public class EditMenu extends BaseMenu {
             if (qty > 64) qty = 64;
 
             item.setQty(qty);
-            HeavenKits.sendMessage(player, "Quantità aggiornata a " + qty);
+            sendMessage(player, "Quantità aggiornata a " + qty);
 
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -195,13 +197,12 @@ public class EditMenu extends BaseMenu {
         ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere " + item.getName() + "? (sì | no)", (player, message) -> {
             if (kit == null) return;
 
-            if (item == null) return;
-
             if (message.equalsIgnoreCase("si") || message.equalsIgnoreCase("sì")) {
                 kit.getItems().remove(item);
                 HeavenKits.sendMessage(p, "Hai rimosso l'item: " + item.getName());
             }
 
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -214,11 +215,12 @@ public class EditMenu extends BaseMenu {
 
             item.setName(newName);
 
-            HeavenKits.sendMessage(player,
+            sendMessage(player,
                     Component.text("Hai modificato il nome dell'item in: ").color(NamedTextColor.GREEN)
                             .append(newName)
             );
 
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -229,16 +231,16 @@ public class EditMenu extends BaseMenu {
 
             Material mat = Material.getMaterial(message.toUpperCase());
             if (mat == null) {
-                HeavenKits.sendMessage(player, "Item non valido!");
+                sendMessage(player, "Item non valido!");
                 new EditMenu(kit).open(player);
                 return;
             }
 
             ItemStack newItem = new ItemStack(mat);
-            Component defaultName = newItem.displayName();
-            kit.getItems().add(new ItemTemplate(newItem, defaultName));
-            HeavenKits.sendMessage(player, "Item aggiunto al kit: " + mat.name());
-
+            Component defaultName = Component.translatable(newItem.translationKey());
+            kit.addItem(new ItemTemplate(newItem, defaultName));
+            sendMessage(player, "Item aggiunto al kit: " + mat.name());
+            kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }

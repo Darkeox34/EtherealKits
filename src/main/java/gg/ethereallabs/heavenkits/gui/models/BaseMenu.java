@@ -49,9 +49,11 @@ public abstract class BaseMenu implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player p)) return;
-        if (inv == null || e.getClickedInventory() != inv) return;
-        e.setCancelled(true);
-        handleClick(p, e.getSlot(), e);
+
+        if (e.getInventory() == inv) {
+            e.setCancelled(true);
+            handleClick(p, e.getSlot(), e);
+        }
     }
 
     @EventHandler
