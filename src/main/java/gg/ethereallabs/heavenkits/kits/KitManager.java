@@ -226,6 +226,22 @@ public class KitManager {
             return;
         }
 
+        int neededSlots = kit.getItems().size();
+        int emptySlots = 0;
+
+        ItemStack[] mainInventory = p.getInventory().getStorageContents();
+        for (ItemStack slot : mainInventory) {
+            if (slot == null || slot.getType().isAir()) {
+                emptySlots++;
+            }
+        }
+
+        if (emptySlots < neededSlots) {
+            sendMessage(p, mm.deserialize("Il tuo inventario è pieno, libera almeno " + (neededSlots - emptySlots) + " slot!").color(NamedTextColor.RED));
+            p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
+            return;
+        }
+
         for (ItemTemplate template : kit.getItems()) {
             ItemStack item = template.getItem().clone();
             item.setAmount(template.getQty());
@@ -248,10 +264,9 @@ public class KitManager {
             p.getInventory().addItem(item);
         }
 
-        if(!p.hasPermission("hk.cooldown.bypass")) {
+        if (!p.hasPermission("hk.cooldown.bypass")) {
             long newCooldownUntil = currentTime + kit.getCooldown();
             playerCooldowns.put(kit.getName(), newCooldownUntil);
-
             kitManager.updatePlayerCooldown(uuid.toString(), kit.getName(), newCooldownUntil);
         }
 
@@ -260,6 +275,7 @@ public class KitManager {
                 .append(Component.text("!")));
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
     }
+
 
 
     public Map<UUID, Map<String, Long>> getCooldowns() {
