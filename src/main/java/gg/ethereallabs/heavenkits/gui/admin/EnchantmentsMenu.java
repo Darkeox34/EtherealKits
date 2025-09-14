@@ -1,18 +1,21 @@
-package gg.ethereallabs.heavenkits.gui;
+package gg.ethereallabs.heavenkits.gui.admin;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.ItemTemplate;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -25,11 +28,14 @@ public class EnchantmentsMenu extends BaseMenu {
             .toList();
 
     ItemTemplate item;
+    KitTemplate kit;
     private final Map<Integer, Enchantment> slotToEnchant = new HashMap<>();
 
-    public EnchantmentsMenu(ItemTemplate item) {
-        super("&bModificando " + item.getName() + " enchantments", 54);
+    public EnchantmentsMenu(ItemTemplate item, KitTemplate kit) {
+        super(Component.text("Modificando ").color(NamedTextColor.AQUA)
+                .append(item.getName().color(NamedTextColor.YELLOW)),54);
         this.item = item;
+        this.kit = kit;
     }
 
     @Override
@@ -38,7 +44,9 @@ public class EnchantmentsMenu extends BaseMenu {
         slotToEnchant.clear();
         int i = 0;
 
-        List<Enchantment> sortedEnchants = Arrays.stream(Enchantment.values())
+        List<Enchantment> sortedEnchants = RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ENCHANTMENT)
+                .stream()
                 .sorted(Comparator.comparing(enchant -> enchant.getKey().getKey()))
                 .toList();
 
@@ -49,11 +57,16 @@ public class EnchantmentsMenu extends BaseMenu {
             Component name;
             if(item.getEnchantments().containsKey(enchant)) {
                 material = new ItemStack(Material.ENCHANTED_BOOK);
-                name = mm.deserialize("<yellow>(Selezionato) <purple>" + enchant.getKey().getKey().toUpperCase() + " <orange>(" + item.getEnchantmentLevel(enchant) + ")");
+                name = mm.deserialize(
+                        "<yellow>(Selezionato)</yellow> " +
+                                "<red>" + enchant.getKey().getKey().toUpperCase() + "</red> " +
+                                "<red>(" + item.getEnchantmentLevel(enchant) + ")</red>"
+                ).decoration(TextDecoration.ITALIC, false);
+
             }
             else {
                 material = new ItemStack(Material.BOOK);
-                name = mm.deserialize("<yellow>" + enchant.getKey().getKey().toUpperCase());
+                name = mm.deserialize("<yellow>" + enchant.getKey().getKey().toUpperCase()).decoration(TextDecoration.ITALIC, false);
             }
 
             ItemMeta meta = material.getItemMeta();
@@ -66,6 +79,8 @@ public class EnchantmentsMenu extends BaseMenu {
             inv.setItem(slotsList.get(i), material);
             i++;
         }
+
+        inv.setItem(53, createItem(Component.text("Torna indietro").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.RED), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
     }
 
     @Override
@@ -82,9 +97,12 @@ public class EnchantmentsMenu extends BaseMenu {
                     handleAddEnchant(p, enchantment);
                 else {
                     item.removeEnchantment(enchantment);
-                    new EnchantmentsMenu(item).open(p);
+                    new EnchantmentsMenu(item, kit).open(p);
                 }
             }
+        }
+        else if(slot == 53){
+            new EditMenu(kit).open(p);
         }
     }
 
@@ -99,7 +117,7 @@ public class EnchantmentsMenu extends BaseMenu {
                 level = Integer.parseInt(message);
             } catch (NumberFormatException e) {
                 HeavenKits.sendMessage(player, "Valore non valido! Inserisci un numero.");
-                new EnchantmentsMenu(item).open(player);
+                new EnchantmentsMenu(item, kit).open(player);
                 return;
             }
 
@@ -108,7 +126,7 @@ public class EnchantmentsMenu extends BaseMenu {
 
             item.addEnchantment(enchantment, level);
 
-            new EnchantmentsMenu(item).open(player);
+            new EnchantmentsMenu(item, kit).open(player);
         });
     }
 }

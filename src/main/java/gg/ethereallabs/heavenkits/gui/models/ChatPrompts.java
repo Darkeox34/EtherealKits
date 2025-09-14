@@ -2,6 +2,7 @@ package gg.ethereallabs.heavenkits.gui.models;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -11,6 +12,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+
+import static gg.ethereallabs.heavenkits.HeavenKits.mm;
 
 public class ChatPrompts implements Listener {
 
@@ -32,13 +35,13 @@ public class ChatPrompts implements Listener {
 
     public void ask(Player player, String question, BiConsumer<Player, String> onAnswer) {
         player.closeInventory();
-        player.sendMessage("§b» " + question + " §7(annulla: §c!cancel§7)");
+        player.sendMessage(mm.deserialize("<aqua>» " + question + " <gray>(annulla: <red>!cancel<gray>)"));
         pending.put(player.getUniqueId(), new Flow(onAnswer));
     }
 
     public void cancel(Player player) {
         pending.remove(player.getUniqueId());
-        player.sendMessage("§7Operazione cancellata.");
+        player.sendMessage(mm.deserialize("<gray>Operazione cancellata."));
     }
 
     @EventHandler

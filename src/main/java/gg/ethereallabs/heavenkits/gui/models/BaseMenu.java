@@ -20,23 +20,22 @@ import java.util.*;
 
 public abstract class BaseMenu implements Listener {
 
-    private final String title;
+    private final Component title;
     private final int size;
     protected Inventory inv;
     private final Set<UUID> viewers = new HashSet<>();
 
-    public BaseMenu(String title, int size) {
+    public BaseMenu(Component title, int size) {
         this.title = title;
         this.size = size;
     }
 
-    public BaseMenu(String title) {
-        this(title, 54);
+    public BaseMenu(String title, int size) {
+        this(LegacyComponentSerializer.legacyAmpersand().deserialize(title), size);
     }
 
     public void open(Player p) {
-        Component titleComponent = LegacyComponentSerializer.legacyAmpersand().deserialize(title);
-        inv = Bukkit.createInventory(null, size, titleComponent);
+        inv = Bukkit.createInventory(null, size, title);
         Bukkit.getPluginManager().registerEvents(this, HeavenKits.instance);
         viewers.add(p.getUniqueId());
         draw(p);

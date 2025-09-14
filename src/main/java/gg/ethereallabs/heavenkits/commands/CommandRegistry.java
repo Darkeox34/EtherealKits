@@ -3,6 +3,7 @@ package gg.ethereallabs.heavenkits.commands;
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.commands.abs.BaseCommand;
 import gg.ethereallabs.heavenkits.commands.abs.CommandHandler;
+import gg.ethereallabs.heavenkits.commands.subcommands.AdminCommand;
 import gg.ethereallabs.heavenkits.commands.subcommands.KitsCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,6 +18,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
     private final Map<String, CommandHandler> commands = new HashMap<>();
 
     public CommandRegistry() {
+        registerCommand(new AdminCommand());
         registerCommand(new KitsCommand());
     }
 

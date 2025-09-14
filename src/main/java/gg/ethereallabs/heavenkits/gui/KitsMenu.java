@@ -5,16 +5,16 @@ import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static gg.ethereallabs.heavenkits.HeavenKits.*;
@@ -27,7 +27,7 @@ public class KitsMenu extends BaseMenu {
     private final Map<Integer, KitTemplate> slotToKit = new HashMap<>();
 
     public KitsMenu() {
-        super("Kits", 54);
+        super("Kits", 45);
     }
 
     @Override
@@ -41,31 +41,43 @@ public class KitsMenu extends BaseMenu {
         for (Map.Entry<String, KitTemplate> entry : kits.entrySet()) {
             if (i >= slotsList.size()) break;
 
-            String name = entry.getKey();
-            List<Component> lore = getComponents(entry);
             KitTemplate kit = entry.getValue();
+            Component displayName = kit.getDisplayName().decoration(TextDecoration.ITALIC, false);
+            List<Component> lore = getComponents(p, entry);
 
             int slot = slotsList.get(i);
-            inv.setItem(slotsList.get(i), createItem(Component.text(name), Material.BOOK, lore, 1));
+
+            Material displayMaterial = p.hasPermission(kit.getPermission()) ? kit.getDisplayMaterial() : Material.BARRIER;
+
+            inv.setItem(slotsList.get(i), createItem(displayName, displayMaterial, lore, 1));
             slotToKit.put(slot, kit);
 
             i++;
         }
-
-        inv.setItem(49, createItem(Component.text("Crea un nuovo Kit"), Material.EMERALD_BLOCK, Collections.emptyList(), 1));
     }
 
-    private static @NotNull List<Component> getComponents(Map.Entry<String, KitTemplate> entry) {
+    private static @NotNull List<Component> getComponents(Player player, Map.Entry<String, KitTemplate> entry) {
         KitTemplate kit = entry.getValue();
 
-        return List.of(
-                mm.deserialize("<gray>Left-Click: Modifica"),
-                mm.deserialize("<gray>Shift-Left-Click: Rinomina"),
-                mm.deserialize("<gray>Right-Click: Rimuovi"),
-                Component.empty(),
-                mm.deserialize("<yellow>Cooldown: " + kit.getCooldown()),
-                mm.deserialize("<yellow>Permesso: " + kit.getPermission())
-        );
+        List<Component> components = new ArrayList<>();
+
+        components.add(mm.deserialize("<gray>(Tasto Sinistro)<green> Riscuoti").decoration(TextDecoration.ITALIC, false));
+        components.add(mm.deserialize("<gray>(Tasto Destro)<yellow> Vedi").decoration(TextDecoration.ITALIC, false));
+        components.add(Component.empty());
+
+        if (!player.hasPermission(kit.getPermission())) {
+            components.add(mm.deserialize("<red>Non hai il permesso di riscuotere questo Kit!\n Visita il nostro store per scoprire i nostri pacchetti!")
+                    .decoration(TextDecoration.ITALIC, false));
+        } else {
+            if (kit.getCooldown() == 0) {
+                components.add(mm.deserialize("<green>Riscuoti Ora!").decoration(TextDecoration.ITALIC, false));
+            } else {
+                components.add(mm.deserialize("<yellow>Cooldown: " + formatRemainingTime(kit.getCooldown()))
+                        .decoration(TextDecoration.ITALIC, false));
+            }
+        }
+
+        return components;
     }
 
     @Override
@@ -77,22 +89,11 @@ public class KitsMenu extends BaseMenu {
             boolean shiftClick = e.isShiftClick();
             boolean rightClick = e.isRightClick();
 
-            if (leftClick && shiftClick) {
-                sendMessage(p, "Hai iniziato a rinominare il kit: " + kit.getName());
-            } else if (leftClick) {
-                new EditMenu(kit).open(p);
+            if (leftClick) {
+                kitManager.redeemKit(kit, p);
             } else if (rightClick) {
-                sendMessage(p,"Hai cliccato per eliminare il kit: " + kit.getName());
+                new ViewKitMenu(kit).open(p);
             }
-        } else if (slot == 49) {
-            handleKitCreation(p);
         }
-    }
-
-    void handleKitCreation(Player p){
-        ChatPrompts.getInstance().ask(p, "Inserire il nome del Kit", (player, message) -> {
-            kitManager.createKit(message, player);
-            sendMessage(player, "<green>Kit '<yellow>" + message + "</yellow>' creato con successo!");
-        });
     }
 }

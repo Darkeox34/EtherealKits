@@ -1,4 +1,4 @@
-package gg.ethereallabs.heavenkits.gui;
+package gg.ethereallabs.heavenkits.gui.admin;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
@@ -6,9 +6,9 @@ import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.ItemTemplate;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
-import static gg.ethereallabs.heavenkits.HeavenKits.mm;
+import static gg.ethereallabs.heavenkits.HeavenKits.*;
 
 public class EditMenu extends BaseMenu {
     private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
@@ -31,7 +31,8 @@ public class EditMenu extends BaseMenu {
     private final Map<Integer, ItemTemplate> slotToItem = new HashMap<>();
 
     public EditMenu(KitTemplate kitTemplate) {
-        super("&bEditing " + kitTemplate.getName(), 54);
+        super(Component.text("Modificando ").color(NamedTextColor.AQUA)
+                .append(Component.text(kitTemplate.getName())),54);
         kit = kitTemplate;
     }
 
@@ -46,7 +47,7 @@ public class EditMenu extends BaseMenu {
             if (i >= slotsList.size()) {
                 break;
             }
-            Component name = entry.getName();
+            Component name = entry.getName().decoration(TextDecoration.ITALIC, false);
             List<Component> lore = getComponents();
             int slot = slotsList.get(i);
             slotToItem.put(slot, entry);
@@ -54,15 +55,31 @@ public class EditMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item"), Material.EMERALD_BLOCK, Collections.emptyList(), 1));
+        inv.setItem(45, createItem(Component.text("Imposta il display material del Kit")
+                .color(NamedTextColor.GREEN)
+                .decoration(TextDecoration.ITALIC, false), Material.PAINTING, Collections.emptyList(), 1));
+        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item")
+                .color(NamedTextColor.GREEN)
+                .decoration(TextDecoration.ITALIC, false), Material.GREEN_STAINED_GLASS_PANE, Collections.emptyList(), 1));
+        inv.setItem(48, createItem(Component.text("Imposta Cooldown")
+                .color(NamedTextColor.YELLOW)
+                .decoration(TextDecoration.ITALIC, false), Material.CLOCK, Collections.emptyList(), 1));
+        inv.setItem(50, createItem(Component.text("Imposta Permesso")
+                .color(NamedTextColor.RED)
+                .decoration(TextDecoration.ITALIC, false), Material.SHIELD, Collections.emptyList(), 1));
+
+        inv.setItem(53, createItem(Component.text("Torna Indietro")
+                .color(NamedTextColor.RED)
+                .decoration(TextDecoration.ITALIC, false), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
     }
 
     private static @NotNull List<Component> getComponents() {
         return List.of(
-                mm.deserialize("<gray>Left-Click: Modifica Enchantments"),
-                mm.deserialize("<gray>Shift-Left-Click: Rinomina Item"),
-                mm.deserialize("<gray>Shift-Right-Click: Modifica Quantity"),
-                mm.deserialize("<gray>Right-Click: Rimuovi Item")
+                mm.deserialize(""),
+                mm.deserialize("<gray>(Left-Click)<yellow> Modifica Enchantments").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rinomina Item").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Shift+Right-Click)<yellow> Modifica Quantità").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Right-Click)<yellow> Rimuovi Item").decoration(TextDecoration.ITALIC, false)
         );
     }
 
@@ -76,25 +93,79 @@ public class EditMenu extends BaseMenu {
             boolean rightClick = e.isRightClick();
 
             if (leftClick && shiftClick) {
-                HeavenKits.sendMessage(p, "Hai iniziato a rinominare l'item: " + item.getName());
                 handleRenameItem(p, item);
             } else if (rightClick && shiftClick) {
-                HeavenKits.sendMessage(p, "Hai iniziato a modificare la quantità di: " + item.getName());
                 handleChangeQty(p, item);
             } else if (leftClick) {
-                HeavenKits.sendMessage(p, "Hai iniziato a modificare gli enchantment di: " + item.getName());
                 handleEditEnchant(p, item);
             } else if (rightClick) {
-                HeavenKits.sendMessage(p,"Hai cliccato per eliminare l'item: " + item.getName());
                 handleRemoveItem(p, item);
             }
         } else if (slot == 49) {
             handleAddItem(p);
         }
+        else if(slot == 53) {
+            new EditKitsMenu().open(p);
+        }
+        else if (slot == 48) {
+            handleSetCooldown(p);
+        }
+        else if (slot == 50) {
+            handleSetPermission(p);
+        }
+        else if (slot == 45) {
+            handleSetDisplayMaterial(p);
+        }
+    }
+
+    void handleSetDisplayMaterial(Player p){
+        ChatPrompts.getInstance().ask(p, "Inserire l'item da usare come display material: ", (player, message) -> {
+            if (kit == null) return;
+
+            Material mat = Material.getMaterial(message.toUpperCase());
+            if (mat == null) {
+                HeavenKits.sendMessage(player, "Item non valido!");
+                new EditMenu(kit).open(player);
+                return;
+            }
+
+            kit.setDisplayMaterial(mat);
+
+            HeavenKits.sendMessage(player, mat.name() + " utilizzato come display material");
+
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleSetPermission(Player p) {
+        ChatPrompts.getInstance().ask(p, "Inserire il permesso per il kit ", (player, message) -> {
+            if (kit == null) return;
+
+            kit.setPermission(message);
+
+            sendMessage(p, "Permesso impostato su " + message);
+
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleSetCooldown(Player p) {
+        ChatPrompts.getInstance().ask(p, "Inserire il cooldown per il kit (es. (7d12h))", (player, message) -> {
+            if (kit == null) return;
+
+            try {
+                long cooldownSeconds = parseTime(message);
+                kit.setCooldown(cooldownSeconds);
+                sendMessage(p, "Cooldown impostato su " + formatTime(cooldownSeconds));
+                new EditMenu(kit).open(player);
+            } catch (IllegalArgumentException e) {
+                player.sendMessage("Formato del tempo non valido! Esempio: (7d12h),(10m),(5h15m10s)");
+            }
+        });
     }
 
     void handleEditEnchant(Player p, ItemTemplate item) {
-        new EnchantmentsMenu(item).open(p);
+        new EnchantmentsMenu(item, kit).open(p);
     }
 
     void handleChangeQty(Player p, ItemTemplate item) {
@@ -121,7 +192,7 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleRemoveItem(Player p, ItemTemplate item) {
-        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere l'item? (sì|no)", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere " + item.getName() + "? (sì | no)", (player, message) -> {
             if (kit == null) return;
 
             if (item == null) return;
@@ -137,15 +208,16 @@ public class EditMenu extends BaseMenu {
 
     void handleRenameItem(Player p, ItemTemplate item) {
         ChatPrompts.getInstance().ask(p, "Inserire il nuovo nome dell'item: ", (player, message) -> {
-            if (kit == null) return;
-
-            if (item == null) return;
+            if (kit == null || item == null) return;
 
             Component newName = mm.deserialize(message);
 
             item.setName(newName);
 
-            HeavenKits.sendMessage(p, "Hai modificato il nome dell'item in: " + newName);
+            HeavenKits.sendMessage(player,
+                    Component.text("Hai modificato il nome dell'item in: ").color(NamedTextColor.GREEN)
+                            .append(newName)
+            );
 
             new EditMenu(kit).open(player);
         });
@@ -163,7 +235,7 @@ public class EditMenu extends BaseMenu {
             }
 
             ItemStack newItem = new ItemStack(mat);
-            Component defaultName = mm.deserialize("<white>" + newItem.displayName() + "</white>");
+            Component defaultName = newItem.displayName();
             kit.getItems().add(new ItemTemplate(newItem, defaultName));
             HeavenKits.sendMessage(player, "Item aggiunto al kit: " + mat.name());
 
