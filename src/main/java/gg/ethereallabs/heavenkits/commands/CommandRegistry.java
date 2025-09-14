@@ -46,7 +46,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
         if (handler != null) {
             return handler.execute(sender, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sendMessage(sender, "<red>Comando non trovato! Scrivi /hk help per avere una lista di tutti i comandi.");
+            sendMessage(sender, "<red>Comando non trovato! Scrivi /hk admin help per avere una lista di tutti i comandi.");
             return true;
         }
     }
@@ -78,7 +78,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
 
     public static void sendDefaultMessage(CommandSender sender) {
         sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
-        sender.sendMessage(mm.deserialize("<yellow>/hk kits help</yellow> <gray>- Mostra tutti i comandi disponibili"));
+        sender.sendMessage(mm.deserialize("<yellow>/hk admin help</yellow> <gray>- Mostra tutti i comandi disponibili"));
         sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>================================================</gradient>"));
     }
 
