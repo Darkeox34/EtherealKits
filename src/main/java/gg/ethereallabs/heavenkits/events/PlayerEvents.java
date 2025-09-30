@@ -11,6 +11,6 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        HeavenKits.kitManager.loadCooldowns(p);
+        HeavenKits.getInstance().getKitManager().loadCooldowns(p);
     }
 }

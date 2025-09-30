@@ -2,12 +2,8 @@ package gg.ethereallabs.heavenkits.gui;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
-import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
-import gg.ethereallabs.heavenkits.kits.KitManager;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
@@ -37,7 +33,7 @@ public class KitsMenu extends BaseMenu {
         inv.clear();
         slotToKit.clear();
 
-        HashMap<String, KitTemplate> kits = HeavenKits.kitManager.getKits();
+        HashMap<String, KitTemplate> kits = HeavenKits.getInstance().getKitManager().getKits();
 
         int i = 0;
         for (Map.Entry<String, KitTemplate> entry : kits.entrySet()) {
@@ -64,7 +60,7 @@ public class KitsMenu extends BaseMenu {
     private long getTimeLeft(Player player, KitTemplate kit) {
         UUID uuid = player.getUniqueId();
 
-        Map<String, Long> playerCooldowns = kitManager.getCooldowns().get(uuid);
+        Map<String, Long> playerCooldowns = HeavenKits.getInstance().getKitManager().getCooldowns().get(uuid);
         if (playerCooldowns == null) return 0;
 
         Long cooldownUntil = playerCooldowns.get(kit.getName());
@@ -102,7 +98,7 @@ public class KitsMenu extends BaseMenu {
 
                 player.updateInventory();
             }
-        }.runTaskTimer(HeavenKits.instance, 0L, 20L);
+        }.runTaskTimer(HeavenKits.getInstance(), 0L, 20L);
     }
 
     private static @NotNull List<Component> getComponents(Player player, KitTemplate kit, long timeLeftMs) {
@@ -138,7 +134,7 @@ public class KitsMenu extends BaseMenu {
             boolean rightClick = e.isRightClick();
 
             if (leftClick) {
-                kitManager.redeemKit(kit, p);
+                HeavenKits.getInstance().getKitManager().redeemKit(kit, p);
                 p.closeInventory();
             } else if (rightClick) {
                 new ViewKitMenu(kit).open(p);

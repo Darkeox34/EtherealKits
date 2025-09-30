@@ -1,12 +1,10 @@
 package gg.ethereallabs.heavenkits.kits.models;
 
-import gg.ethereallabs.heavenkits.HeavenKits;
 import net.kyori.adventure.text.Component;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 

@@ -20,7 +20,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static gg.ethereallabs.heavenkits.HeavenKits.kitManager;
 import static gg.ethereallabs.heavenkits.HeavenKits.mm;
 
 public class EnchantmentsMenu extends BaseMenu {
@@ -126,7 +125,7 @@ public class EnchantmentsMenu extends BaseMenu {
             if (level > enchantment.getMaxLevel()) level = enchantment.getMaxLevel();
 
             item.addEnchantment(enchantment, level);
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EnchantmentsMenu(item, kit).open(player);
         });
     }

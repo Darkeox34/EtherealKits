@@ -1,8 +1,6 @@
 package gg.ethereallabs.heavenkits.commands.abs;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

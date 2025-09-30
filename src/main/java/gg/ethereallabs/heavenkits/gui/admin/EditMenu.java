@@ -14,13 +14,13 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import static gg.ethereallabs.heavenkits.HeavenKits.mm;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
-
-import static gg.ethereallabs.heavenkits.HeavenKits.*;
 
 public class EditMenu extends BaseMenu {
     private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
@@ -132,7 +132,7 @@ public class EditMenu extends BaseMenu {
             kit.setDisplayMaterial(mat);
 
             HeavenKits.sendMessage(player, mat.name() + " used as display material");
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -143,8 +143,8 @@ public class EditMenu extends BaseMenu {
 
             kit.setPermission(message);
 
-            sendMessage(player, "Permission set to " + message);
-            kitManager.updateKit(kit);
+            HeavenKits.sendMessage(player, "Permission set to " + message);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -154,10 +154,10 @@ public class EditMenu extends BaseMenu {
             if (kit == null) return;
 
             try {
-                long cooldownMs = parseTime(message);
+                long cooldownMs = HeavenKits.parseTime(message);
                 kit.setCooldown(cooldownMs);
-                sendMessage(p, "Cooldown set to " + formatTime(cooldownMs));
-                kitManager.updateKit(kit);
+                HeavenKits.sendMessage(p, "Cooldown set to " + HeavenKits.formatTime(cooldownMs));
+                HeavenKits.getInstance().getKitManager().updateKit(kit);
                 new EditMenu(kit).open(player);
             } catch (IllegalArgumentException e) {
                 player.sendMessage("Time format not valid! Example: (7d12h),(10m),(5h15m10s)");
@@ -177,7 +177,7 @@ public class EditMenu extends BaseMenu {
             try {
                 qty = Integer.parseInt(message);
             } catch (NumberFormatException e) {
-                sendMessage(player, "Invalid value! Enter a number.");
+                HeavenKits.sendMessage(player, "Invalid value! Enter a number.");
                 new EditMenu(kit).open(player);
                 return;
             }
@@ -186,9 +186,9 @@ public class EditMenu extends BaseMenu {
             if (qty > 64) qty = 64;
 
             item.setQty(qty);
-            sendMessage(player, "Quantity updated to " + qty);
+            HeavenKits.sendMessage(player, "Quantity updated to " + qty);
 
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -202,7 +202,7 @@ public class EditMenu extends BaseMenu {
                 HeavenKits.sendMessage(p, "You removed the item: " + item.getName());
             }
 
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -211,16 +211,16 @@ public class EditMenu extends BaseMenu {
         ChatPrompts.getInstance().ask(p, "Enter the new item name: ", (player, message) -> {
             if (kit == null || item == null) return;
 
-            Component newName = mm.deserialize(message);
+            Component newName = HeavenKits.mm.deserialize(message);
 
             item.setName(newName);
 
-            sendMessage(player,
+            HeavenKits.sendMessage(player,
                     Component.text("You changed the item name to: ").color(NamedTextColor.GREEN)
                             .append(newName)
             );
 
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
@@ -231,7 +231,7 @@ public class EditMenu extends BaseMenu {
 
             Material mat = Material.getMaterial(message.toUpperCase());
             if (mat == null) {
-                sendMessage(player, "Invalid item!");
+                HeavenKits.sendMessage(player, "Invalid item!");
                 new EditMenu(kit).open(player);
                 return;
             }
@@ -239,8 +239,8 @@ public class EditMenu extends BaseMenu {
             ItemStack newItem = new ItemStack(mat);
             Component defaultName = Component.translatable(newItem.translationKey());
             kit.addItem(new ItemTemplate(newItem, defaultName));
-            sendMessage(player, "Item added to kit: " + mat.name());
-            kitManager.updateKit(kit);
+            HeavenKits.sendMessage(player, "Item added to kit: " + mat.name());
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }

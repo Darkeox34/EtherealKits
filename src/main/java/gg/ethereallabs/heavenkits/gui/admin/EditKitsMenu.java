@@ -17,8 +17,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.IntStream;
 
-import static gg.ethereallabs.heavenkits.HeavenKits.*;
-
 public class EditKitsMenu extends BaseMenu {
     private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
             .boxed()
@@ -35,7 +33,7 @@ public class EditKitsMenu extends BaseMenu {
         inv.clear();
         slotToKit.clear();
 
-        HashMap<String, KitTemplate> kits = HeavenKits.kitManager.getKits();
+        HashMap<String, KitTemplate> kits = HeavenKits.getInstance().getKitManager().getKits();
 
         int i = 0;
         for (Map.Entry<String, KitTemplate> entry : kits.entrySet()) {
@@ -61,13 +59,13 @@ public class EditKitsMenu extends BaseMenu {
         KitTemplate kit = entry.getValue();
 
         return List.of(
-                mm.deserialize("<gray>(Left-Click)<yellow> Edit").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rename").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Shift+Right-Click)<yellow> Rename DisplayName").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Right-Click)<yellow> Remove").decoration(TextDecoration.ITALIC, false),
+                HeavenKits.mm.deserialize("<gray>(Left-Click)<yellow> Edit").decoration(TextDecoration.ITALIC, false),
+                HeavenKits.mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rename").decoration(TextDecoration.ITALIC, false),
+                HeavenKits.mm.deserialize("<gray>(Shift+Right-Click)<yellow> Rename DisplayName").decoration(TextDecoration.ITALIC, false),
+                HeavenKits.mm.deserialize("<gray>(Right-Click)<yellow> Remove").decoration(TextDecoration.ITALIC, false),
                 Component.empty(),
-                mm.deserialize("<yellow>Cooldown: " + formatTime(kit.getCooldown())).decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<yellow>Permission: " + kit.getPermission()).decoration(TextDecoration.ITALIC, false)
+                HeavenKits.mm.deserialize("<yellow>Cooldown: " + HeavenKits.formatTime(kit.getCooldown())).decoration(TextDecoration.ITALIC, false),
+                HeavenKits.mm.deserialize("<yellow>Permission: " + kit.getPermission()).decoration(TextDecoration.ITALIC, false)
         );
     }
 
@@ -96,7 +94,7 @@ public class EditKitsMenu extends BaseMenu {
 
     void handleKitCreation(Player p){
         ChatPrompts.getInstance().ask(p, "Enter the Kit name", (player, message) -> {
-            if(!kitManager.createKit(message, player))
+            if(!HeavenKits.getInstance().getKitManager().createKit(message, player))
                 return;
 
 
@@ -108,31 +106,31 @@ public class EditKitsMenu extends BaseMenu {
                     .hoverEvent(HoverEvent.showText(Component.text("Click here to edit the Kit").color(NamedTextColor.GREEN)))
                     .clickEvent(ClickEvent.runCommand("/hk kits edit " + message));
 
-            sendMessage(player, kitCreated);
+            HeavenKits.sendMessage(player, kitCreated);
             new EditKitsMenu().open(p);
         });
     }
 
     void handleKitRename(Player p, KitTemplate kit){
         ChatPrompts.getInstance().ask(p, "Enter the new Kit name", (player, message) -> {
-            kitManager.renameKit(kit.getName(), message, p);
-            sendMessage(p, "<green>Kit '<yellow>" + kit.getName() + "</yellow>' renamed to '<yellow>" + message + "</yellow>'!");
-            kitManager.updateKit(kit);
+            HeavenKits.getInstance().getKitManager().renameKit(kit.getName(), message, p);
+            HeavenKits.sendMessage(p, "<green>Kit '<yellow>" + kit.getName() + "</yellow>' renamed to '<yellow>" + message + "</yellow>'!");
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
         });
     }
 
     void handleKitRenameDisplayName(Player p, KitTemplate kit){
         ChatPrompts.getInstance().ask(p, "Enter the new Kit DisplayName", (player, message) -> {
-            kit.setDisplayName(mm.deserialize(message));
-            sendMessage(p, Component.text("You changed the displayname to ").color(NamedTextColor.GREEN).append(kit.getDisplayName()));
-            kitManager.updateKit(kit);
+            kit.setDisplayName(HeavenKits.mm.deserialize(message));
+            HeavenKits.sendMessage(p, Component.text("You changed the displayname to ").color(NamedTextColor.GREEN).append(kit.getDisplayName()));
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
         });
     }
 
     void handleKitDelete(Player p, KitTemplate kit){
         ChatPrompts.getInstance().ask(p, "Are you sure you want to remove the Kit " + kit.getName() + "? (yes | no)", (player, message) -> {
             if (message.equalsIgnoreCase("yes") || message.equalsIgnoreCase("y")) {
-                kitManager.deleteKit(kit.getName());
+                HeavenKits.getInstance().getKitManager().deleteKit(kit.getName());
                 HeavenKits.sendMessage(p, "You removed the Kit: " + kit.getName());
             }
 

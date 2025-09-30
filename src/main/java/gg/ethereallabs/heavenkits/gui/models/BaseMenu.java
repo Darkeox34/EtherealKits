@@ -36,7 +36,7 @@ public abstract class BaseMenu implements Listener {
 
     public void open(Player p) {
         inv = Bukkit.createInventory(null, size, title);
-        Bukkit.getPluginManager().registerEvents(this, HeavenKits.instance);
+        Bukkit.getPluginManager().registerEvents(this, HeavenKits.getInstance());
         viewers.add(p.getUniqueId());
         draw(p);
         p.openInventory(inv);

@@ -1,6 +1,5 @@
 package gg.ethereallabs.heavenkits;
 
-import com.mongodb.client.MongoCollection;
 import gg.ethereallabs.heavenkits.commands.CommandRegistry;
 import gg.ethereallabs.heavenkits.data.MongoDB;
 import gg.ethereallabs.heavenkits.events.PlayerEvents;
@@ -8,8 +7,6 @@ import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.KitManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
-import org.bson.Document;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,9 +17,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class HeavenKits extends JavaPlugin {
-    public static HeavenKits instance;
-    public static KitManager kitManager;
-    public static MongoDB mongo;
+    private static HeavenKits instance;
+    private KitManager kitManager;
+    private MongoDB mongo;
     public static final MiniMessage mm = MiniMessage.miniMessage();
 
 
@@ -139,6 +136,18 @@ public final class HeavenKits extends JavaPlugin {
         sb.append(seconds).append(seconds == 1 ? " second" : " seconds");
 
         return sb.toString().trim();
+    }
+    
+    public static HeavenKits getInstance() {
+        return instance;
+    }
+
+    public KitManager getKitManager() {
+        return kitManager;
+    }
+
+    public MongoDB getMongo() {
+        return mongo;
     }
 
 }

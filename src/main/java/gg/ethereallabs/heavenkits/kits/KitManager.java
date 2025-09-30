@@ -2,10 +2,8 @@ package gg.ethereallabs.heavenkits.kits;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.client.result.UpdateResult;
 import gg.ethereallabs.heavenkits.HeavenKits;
 import gg.ethereallabs.heavenkits.data.KitSerializer;
-import gg.ethereallabs.heavenkits.data.MongoDB;
 import gg.ethereallabs.heavenkits.kits.models.ItemTemplate;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
@@ -35,7 +33,7 @@ public class KitManager {
 
     public KitManager() {
         kits = new HashMap<>();
-        this.collection = mongo.getKitCollection();
+        this.collection = HeavenKits.getInstance().getMongo().getKitCollection();
     }
 
     public void loadAllKits() {
@@ -144,7 +142,7 @@ public class KitManager {
     }
 
     public boolean createKit(String name, CommandSender sender) {
-        if (HeavenKits.kitManager.getKit(name) != null) {
+        if (HeavenKits.getInstance().getKitManager().getKit(name) != null) {
             sendMessage(sender, "<red>A kit with the name '<yellow>" + name + "</yellow>' already exists!");
             return false;
         }
@@ -187,12 +185,12 @@ public class KitManager {
     }
 
     public boolean renameKit(String name, String newName, CommandSender sender){
-        if (HeavenKits.kitManager.getKit(name) == null) {
+        if (HeavenKits.getInstance().getKitManager().getKit(name) == null) {
             sendMessage(sender, "<red>Kit '<yellow>" + name + "</yellow>' not found!");
             return false;
         }
 
-        if (HeavenKits.kitManager.getKit(newName) != null) {
+        if (HeavenKits.getInstance().getKitManager().getKit(newName) != null) {
             sendMessage(sender, "<red>A kit with the name '<yellow>" + newName + "</yellow>' already exists!");
             return false;
         }
@@ -267,7 +265,7 @@ public class KitManager {
         if (!p.hasPermission("hk.cooldown.bypass")) {
             long newCooldownUntil = currentTime + kit.getCooldown();
             playerCooldowns.put(kit.getName(), newCooldownUntil);
-            kitManager.updatePlayerCooldown(uuid.toString(), kit.getName(), newCooldownUntil);
+            HeavenKits.getInstance().getKitManager().updatePlayerCooldown(uuid.toString(), kit.getName(), newCooldownUntil);
         }
 
         sendMessage(p, mm.deserialize("<yellow>You redeemed the kit</yellow> ")

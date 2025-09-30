@@ -2,7 +2,6 @@ package gg.ethereallabs.heavenkits.gui.models;
 
 import gg.ethereallabs.heavenkits.HeavenKits;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -60,6 +59,6 @@ public class ChatPrompts implements Listener {
         }
 
         pending.remove(player.getUniqueId());
-        Bukkit.getScheduler().runTask(HeavenKits.instance, () -> flow.execute(player, msg));
+        Bukkit.getScheduler().runTask(HeavenKits.getInstance(), () -> flow.execute(player, msg));
     }
 }

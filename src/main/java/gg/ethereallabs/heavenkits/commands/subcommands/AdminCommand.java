@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static gg.ethereallabs.heavenkits.HeavenKits.mm;
-
 public class AdminCommand extends BaseCommand {
     public AdminCommand() {
         super("admin");
@@ -74,7 +72,7 @@ public class AdminCommand extends BaseCommand {
                 case "delete":
                 case "rename":
                 case "edit":
-                    return HeavenKits.kitManager.getKits().keySet().stream()
+                    return HeavenKits.getInstance().getKitManager().getKits().keySet().stream()
                             .filter(kitName -> kitName.toLowerCase().startsWith(args[1].toLowerCase()))
                             .toList();
                 case "create":
@@ -111,7 +109,7 @@ public class AdminCommand extends BaseCommand {
             return;
         }
 
-        KitTemplate toEdit = HeavenKits.kitManager.getKit(args[1]);
+        KitTemplate toEdit = HeavenKits.getInstance().getKitManager().getKit(args[1]);
 
         if (toEdit == null) {
             sendMessage(sender, "<red>Kit '<yellow>" + args[1] + "</yellow>' not found!");
@@ -130,7 +128,7 @@ public class AdminCommand extends BaseCommand {
 
         String kitName = args[1];
 
-        boolean succ = HeavenKits.kitManager.createKit(args[1], sender);
+        boolean succ = HeavenKits.getInstance().getKitManager().createKit(args[1], sender);
         if (!succ) {
             if(sender instanceof Player player){
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
@@ -140,12 +138,12 @@ public class AdminCommand extends BaseCommand {
     }
 
     public void handleList(CommandSender sender, String[] args){
-        if (HeavenKits.kitManager.getKits().isEmpty()) {
+        if (HeavenKits.getInstance().getKitManager().getKits().isEmpty()) {
             sendMessage(sender, "<yellow>No kits available.");
             return;
         }
 
-        HeavenKits.kitManager.listKits(sender);
+        HeavenKits.getInstance().getKitManager().listKits(sender);
     }
     public void handleDelete(CommandSender sender, String[] args){
         if (args.length < 1) {
@@ -155,12 +153,12 @@ public class AdminCommand extends BaseCommand {
 
         String kitName = args[1];
 
-        if (HeavenKits.kitManager.getKit(kitName) == null) {
+        if (HeavenKits.getInstance().getKitManager().getKit(kitName) == null) {
             sendMessage(sender, "<red>Kit '<yellow>" + kitName + "</yellow>' not found!");
             return;
         }
 
-        HeavenKits.kitManager.deleteKit(kitName);
+        HeavenKits.getInstance().getKitManager().deleteKit(kitName);
 
         sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' deleted successfully!");
     }
@@ -174,7 +172,7 @@ public class AdminCommand extends BaseCommand {
         String oldName = args[1];
         String newName = args[2];
 
-        boolean succ = HeavenKits.kitManager.renameKit(oldName, newName, sender);
+        boolean succ = HeavenKits.getInstance().getKitManager().renameKit(oldName, newName, sender);
 
         if (!succ) {
             if(sender instanceof Player player){
@@ -185,13 +183,13 @@ public class AdminCommand extends BaseCommand {
     }
 
     private void helpMessage(CommandSender sender) {
-        sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin list</yellow> <gray>- Show all available kits"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin create <name></yellow> <gray>- Create a new kit"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin delete <name></yellow> <gray>- Delete an existing kit"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin rename <name> <new_name></yellow> <gray>- Rename a kit"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin edit <name></yellow> <gray>- Edit a kit (players only)"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin gui</yellow> <gray>- Open the graphical interface (players only)"));
-        sender.sendMessage(mm.deserialize( "<gradient:#8A2BE2:#FF00FF>=================================================</gradient>"));
+        sender.sendMessage(HeavenKits.mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin list</yellow> <gray>- Show all available kits"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin create <name></yellow> <gray>- Create a new kit"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin delete <name></yellow> <gray>- Delete an existing kit"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin rename <name> <new_name></yellow> <gray>- Rename a kit"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin edit <name></yellow> <gray>- Edit a kit (players only)"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<yellow>/hk admin gui</yellow> <gray>- Open the graphical interface (players only)"));
+        sender.sendMessage(HeavenKits.mm.deserialize( "<gradient:#8A2BE2:#FF00FF>=================================================</gradient>"));
     }
 }
