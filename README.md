@@ -1,11 +1,14 @@
+![HeavenKits Logo](https://i.imgur.com/DXxOYSH.png)
+
 # HeavenKits
 
-A powerful and feature-rich Minecraft plugin for managing custom kits with MongoDB integration, cooldown systems, and an intuitive GUI interface.
+A powerful and feature-rich Minecraft plugin for managing custom kits with flexible storage (MongoDB or local files), cooldown systems, and an intuitive GUI interface.
 
 ## Features
 
 - **Custom Kit Management**: Create, edit, and delete custom kits with ease
 - **MongoDB Integration**: Persistent data storage using MongoDB database
+- **Local Storage Support**: File-based storage when MongoDB is disabled
 - **Cooldown System**: Configurable cooldowns for each kit
 - **Permission-Based Access**: Fine-grained permission control for different kits
 - **Interactive GUI**: User-friendly graphical interface for kit management
@@ -16,14 +19,14 @@ A powerful and feature-rich Minecraft plugin for managing custom kits with Mongo
 
 - **Minecraft Server**: Paper/Spigot 1.21+
 - **Java**: Java 21 or higher
-- **Database**: MongoDB instance (local or remote)
+- **Database**: MongoDB instance (optional)
 
 ## Installation
 
 1. Download the latest `HeavenKits-1.0.jar` from the releases
 2. Place the JAR file in your server's `plugins` folder
 3. Start your server to generate the configuration files
-4. Configure MongoDB connection in `config.yml`
+4. Configure storage in `config.yml` (MongoDB on/off and connection details)
 5. Restart the server
 
 ## Configuration
@@ -32,12 +35,19 @@ A powerful and feature-rich Minecraft plugin for managing custom kits with Mongo
 
 ```yaml
 mongodb:
+  enabled: false        # If true, use MongoDB; if false, use local files
   host: localhost        # MongoDB host address
   port: 27017           # MongoDB port
   database: minecraft   # Database name
   username: ""          # MongoDB username (leave empty if no auth)
   password: ""          # MongoDB password (leave empty if no auth)
 ```
+
+Storage behavior:
+- When `mongodb.enabled` is `true`, all data is stored exclusively in MongoDB.
+- When `mongodb.enabled` is `false` (default), data is stored locally under `plugins/HeavenKits/data/`:
+  - Kits in `plugins/HeavenKits/data/kits/*.json`
+  - Player cooldowns in `plugins/HeavenKits/data/cooldowns.json`
 
 ## Commands
 
@@ -99,18 +109,25 @@ Each kit can have a custom permission requirement set by administrators. If no p
    - Add/remove items with custom enchantments
 
 3. **Managing Items**
-   - Items are added to kits through the GUI interface
-   - Support for custom enchantments and item metadata
-   - Items are automatically serialized and stored in MongoDB
+  - Items are added to kits through the GUI interface
+  - Support for custom enchantments and item metadata
+  - Items are automatically serialized and stored in the selected storage (MongoDB or local files)
 
 ## Technical Details
 
-### Database Schema
+### Storage Details
 
-The plugin uses MongoDB collections to store:
-- **Kits**: Kit definitions with items, cooldowns, and permissions
-- **Cooldowns**: Player-specific cooldown tracking
-- **Items**: Serialized item data with enchantments and metadata
+The plugin supports two storage backends:
+
+- MongoDB (when enabled):
+  - Collections:
+    - `kits`: Kit definitions with items, cooldowns, and permissions
+    - `cooldowns`: Player-specific cooldown tracking
+
+- Local files (default):
+  - Files:
+    - `data/kits/*.json`: One JSON file per kit
+    - `data/cooldowns.json`: Player cooldowns JSON document
 
 ### Performance Features
 

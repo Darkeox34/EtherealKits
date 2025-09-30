@@ -1,7 +1,10 @@
 package gg.ethereallabs.heavenkits;
 
 import gg.ethereallabs.heavenkits.commands.CommandRegistry;
+import gg.ethereallabs.heavenkits.data.FileStorage;
 import gg.ethereallabs.heavenkits.data.MongoDB;
+import gg.ethereallabs.heavenkits.data.MongoStorage;
+import gg.ethereallabs.heavenkits.data.Storage;
 import gg.ethereallabs.heavenkits.events.PlayerEvents;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.KitManager;
@@ -20,6 +23,7 @@ public final class HeavenKits extends JavaPlugin {
     private static HeavenKits instance;
     private KitManager kitManager;
     private MongoDB mongo;
+    private Storage storage;
     public static final MiniMessage mm = MiniMessage.miniMessage();
 
 
@@ -30,12 +34,18 @@ public final class HeavenKits extends JavaPlugin {
         saveDefaultConfig();
         FileConfiguration config = getConfig();
 
-        mongo = new MongoDB(config);
+        boolean mongoEnabled = config.getBoolean("mongodb.enabled", false);
+        if (mongoEnabled) {
+            mongo = new MongoDB(config);
+            storage = new MongoStorage(mongo);
+        } else {
+            storage = new FileStorage(getDataFolder().toPath());
+        }
 
-        kitManager = new KitManager();
+        kitManager = new KitManager(storage);
         kitManager.loadAllKits();
 
-        getLogger().info("Loaded " + kitManager.getKits().size() + " kits from database.");
+        getLogger().info("Loaded " + kitManager.getKits().size() + " kits from storage.");
 
         Bukkit.getPluginManager().registerEvents(ChatPrompts.getInstance(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEvents(), this);
@@ -57,7 +67,9 @@ public final class HeavenKits extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        mongo.close();
+        if (mongo != null) {
+            mongo.close();
+        }
     }
 
     public static void sendMessage(CommandSender sender, String message) {
@@ -148,6 +160,10 @@ public final class HeavenKits extends JavaPlugin {
 
     public MongoDB getMongo() {
         return mongo;
+    }
+
+    public Storage getStorage() {
+        return storage;
     }
 
 }
