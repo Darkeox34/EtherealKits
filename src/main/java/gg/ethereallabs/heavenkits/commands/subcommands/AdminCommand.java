@@ -21,7 +21,7 @@ public class AdminCommand extends BaseCommand {
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("hk.commands.admin")) {
-            sendMessage(sender, "<red>Non hai il permesso di eseguire questo comando!");
+            sendMessage(sender, "<red>You don't have permission to execute this command!");
             return true;
         }
 
@@ -52,7 +52,7 @@ public class AdminCommand extends BaseCommand {
                 handleGui(sender, args);
                 break;
             default:
-                sendMessage(sender, "<red>Comando non riconosciuto! Usa <yellow>/hk admin help</yellow> per vedere tutti i comandi disponibili.");
+                sendMessage(sender, "<red>Unrecognized command! Use <yellow>/hk admin help</yellow> to see all available commands.");
                 break;
         }
 
@@ -78,14 +78,14 @@ public class AdminCommand extends BaseCommand {
                             .filter(kitName -> kitName.toLowerCase().startsWith(args[1].toLowerCase()))
                             .toList();
                 case "create":
-                    return List.of("<nome_kit>");
+                    return List.of("<kit_name>");
             }
         }
 
         if (args.length == 3) {
             String subCommand = args[0].toLowerCase();
             if ("rename".equals(subCommand)) {
-                return List.of("<nuovo_nome>");
+                return List.of("<new_name>");
             }
         }
 
@@ -94,7 +94,7 @@ public class AdminCommand extends BaseCommand {
 
     public void handleGui(CommandSender sender, String[] args){
         if(!(sender instanceof Player player)){
-            sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
+            sendMessage(sender, "<red>Only players can execute this command!");
             return;
         }
         new EditKitsMenu().open(player);
@@ -102,19 +102,19 @@ public class AdminCommand extends BaseCommand {
 
     public void handleEdit(CommandSender sender, String[] args) {
         if(!(sender instanceof Player player)){
-            sendMessage(sender, "<red>Solo i giocatori possono eseguire questo comando!");
+            sendMessage(sender, "<red>Only players can execute this command!");
             return;
         }
 
         if (args.length != 2) {
-            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits edit <nome_kit>");
+            sendMessage(sender, "<red>Correct usage: <yellow>/hk kits edit <kit_name>");
             return;
         }
 
         KitTemplate toEdit = HeavenKits.kitManager.getKit(args[1]);
 
         if (toEdit == null) {
-            sendMessage(sender, "<red>Kit '<yellow>" + args[1] + "</yellow>' non trovato!");
+            sendMessage(sender, "<red>Kit '<yellow>" + args[1] + "</yellow>' not found!");
             return;
         }
 
@@ -124,7 +124,7 @@ public class AdminCommand extends BaseCommand {
 
     public void handleCreate(CommandSender sender, String[] args){
         if (args.length != 2) {
-            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits create <nome_kit>");
+            sendMessage(sender, "<red>Correct usage: <yellow>/hk kits create <kit_name>");
             return;
         }
 
@@ -135,13 +135,13 @@ public class AdminCommand extends BaseCommand {
             if(sender instanceof Player player){
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
-            sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' creato con successo!");
+            sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' created successfully!");
         }
     }
 
     public void handleList(CommandSender sender, String[] args){
         if (HeavenKits.kitManager.getKits().isEmpty()) {
-            sendMessage(sender, "<yellow>Nessun kit disponibile.");
+            sendMessage(sender, "<yellow>No kits available.");
             return;
         }
 
@@ -149,25 +149,25 @@ public class AdminCommand extends BaseCommand {
     }
     public void handleDelete(CommandSender sender, String[] args){
         if (args.length < 1) {
-            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits delete <nome_kit>");
+            sendMessage(sender, "<red>Correct usage: <yellow>/hk kits delete <kit_name>");
             return;
         }
 
         String kitName = args[1];
 
         if (HeavenKits.kitManager.getKit(kitName) == null) {
-            sendMessage(sender, "<red>Kit '<yellow>" + kitName + "</yellow>' non trovato!");
+            sendMessage(sender, "<red>Kit '<yellow>" + kitName + "</yellow>' not found!");
             return;
         }
 
         HeavenKits.kitManager.deleteKit(kitName);
 
-        sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' eliminato con successo!");
+        sendMessage(sender, "<green>Kit '<yellow>" + kitName + "</yellow>' deleted successfully!");
     }
 
     public void handleRename(CommandSender sender, String[] args){
         if (args.length < 2) {
-            sendMessage(sender, "<red>Uso corretto: <yellow>/hk kits rename <nome_attuale> <nuovo_nome>");
+            sendMessage(sender, "<red>Correct usage: <yellow>/hk kits rename <current_name> <new_name>");
             return;
         }
 
@@ -180,18 +180,18 @@ public class AdminCommand extends BaseCommand {
             if(sender instanceof Player player){
                 player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
             }
-            sendMessage(sender, "<green>Kit '<yellow>" + oldName + "</yellow>' rinominato in '<yellow>" + newName + "</yellow>'!");
+            sendMessage(sender, "<green>Kit '<yellow>" + oldName + "</yellow>' renamed to '<yellow>" + newName + "</yellow>'!");
         }
     }
 
     private void helpMessage(CommandSender sender) {
         sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin list</yellow> <gray>- Mostra tutti i kit disponibili"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin create <nome></yellow> <gray>- Crea un nuovo kit"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin delete <nome></yellow> <gray>- Elimina un kit esistente"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin rename <nome> <nuovo_nome></yellow> <gray>- Rinomina un kit"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin edit <nome></yellow> <gray>- Modifica un kit (solo giocatori)"));
-        sender.sendMessage(mm.deserialize( "<yellow>/hk admin gui</yellow> <gray>- Apri l'interfaccia grafica (solo giocatori)"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin list</yellow> <gray>- Show all available kits"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin create <name></yellow> <gray>- Create a new kit"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin delete <name></yellow> <gray>- Delete an existing kit"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin rename <name> <new_name></yellow> <gray>- Rename a kit"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin edit <name></yellow> <gray>- Edit a kit (players only)"));
+        sender.sendMessage(mm.deserialize( "<yellow>/hk admin gui</yellow> <gray>- Open the graphical interface (players only)"));
         sender.sendMessage(mm.deserialize( "<gradient:#8A2BE2:#FF00FF>=================================================</gradient>"));
     }
 }

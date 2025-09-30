@@ -38,7 +38,7 @@ public final class HeavenKits extends JavaPlugin {
         kitManager = new KitManager();
         kitManager.loadAllKits();
 
-        getLogger().info("Caricati " + kitManager.getKits().size() + " kit dal database.");
+        getLogger().info("Loaded " + kitManager.getKits().size() + " kits from database.");
 
         Bukkit.getPluginManager().registerEvents(ChatPrompts.getInstance(), this);
         Bukkit.getPluginManager().registerEvents(new PlayerEvents(), this);
@@ -90,11 +90,11 @@ public final class HeavenKits extends JavaPlugin {
                 case "m": totalMillis += value * 60_000L; break;
                 case "h": totalMillis += value * 3_600_000L; break;
                 case "d": totalMillis += value * 86_400_000L; break;
-                default: throw new IllegalArgumentException("Unità di tempo non valida: " + unit);
+                default: throw new IllegalArgumentException("Invalid time unit: " + unit);
             }
         }
 
-        if (!found) throw new IllegalArgumentException("Formato del tempo non valido: " + input);
+        if (!found) throw new IllegalArgumentException("Invalid time format: " + input);
         return totalMillis;
     }
 
@@ -108,16 +108,16 @@ public final class HeavenKits extends JavaPlugin {
         StringBuilder sb = new StringBuilder();
 
         if (day > 0) {
-            sb.append(day).append(day == 1 ? " giorno" : " giorni");
-            if (hour > 0) sb.append(" ").append(hour).append(hour == 1 ? " ora" : " ore");
+            sb.append(day).append(day == 1 ? " day" : " days");
+            if (hour > 0) sb.append(" ").append(hour).append(hour == 1 ? " hour" : " hours");
         } else if (hour > 0) {
-            sb.append(hour).append(hour == 1 ? " ora" : " ore");
-            if (minute > 0) sb.append(" ").append(minute).append(minute == 1 ? " minuto" : " minuti");
+            sb.append(hour).append(hour == 1 ? " hour" : " hours");
+            if (minute > 0) sb.append(" ").append(minute).append(minute == 1 ? " minute" : " minutes");
         } else if (minute > 0) {
-            sb.append(minute).append(minute == 1 ? " minuto" : " minuti");
-            if (seconds > 0) sb.append(" ").append(seconds).append(seconds == 1 ? " secondo" : " secondi");
+            sb.append(minute).append(minute == 1 ? " minute" : " minutes");
+            if (seconds > 0) sb.append(" ").append(seconds).append(seconds == 1 ? " second" : " seconds");
         } else {
-            sb.append(seconds).append(seconds == 1 ? " secondo" : " secondi");
+            sb.append(seconds).append(seconds == 1 ? " second" : " seconds");
         }
 
         return sb.toString();
@@ -133,10 +133,10 @@ public final class HeavenKits extends JavaPlugin {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(days).append(days == 1 ? " giorno " : " giorni ");
-        sb.append(hours).append(hours == 1 ? " ora " : " ore ");
-        sb.append(minutes).append(minutes == 1 ? " minuto " : " minuti ");
-        sb.append(seconds).append(seconds == 1 ? " secondo" : " secondi");
+        sb.append(days).append(days == 1 ? " day " : " days ");
+        sb.append(hours).append(hours == 1 ? " hour " : " hours ");
+        sb.append(minutes).append(minutes == 1 ? " minute " : " minutes ");
+        sb.append(seconds).append(seconds == 1 ? " second" : " seconds");
 
         return sb.toString().trim();
     }

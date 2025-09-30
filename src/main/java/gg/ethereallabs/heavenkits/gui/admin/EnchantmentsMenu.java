@@ -33,7 +33,7 @@ public class EnchantmentsMenu extends BaseMenu {
     private final Map<Integer, Enchantment> slotToEnchant = new HashMap<>();
 
     public EnchantmentsMenu(ItemTemplate item, KitTemplate kit) {
-        super(Component.text("Modificando ").color(NamedTextColor.AQUA)
+        super(Component.text("Editing ").color(NamedTextColor.AQUA)
                 .append(item.getName().color(NamedTextColor.YELLOW)),54);
         this.item = item;
         this.kit = kit;
@@ -59,7 +59,7 @@ public class EnchantmentsMenu extends BaseMenu {
             if(item.getEnchantments().containsKey(enchant)) {
                 material = new ItemStack(Material.ENCHANTED_BOOK);
                 name = mm.deserialize(
-                        "<yellow>(Selezionato)</yellow> " +
+                        "<yellow>(Selected)</yellow> " +
                                 "<red>" + enchant.getKey().getKey().toUpperCase() + "</red> " +
                                 "<red>(" + item.getEnchantmentLevel(enchant) + ")</red>"
                 ).decoration(TextDecoration.ITALIC, false);
@@ -81,7 +81,7 @@ public class EnchantmentsMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(53, createItem(Component.text("Torna indietro").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.RED), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
+        inv.setItem(53, createItem(Component.text("Go back").decoration(TextDecoration.ITALIC, false).color(NamedTextColor.RED), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
     }
 
     @Override
@@ -108,16 +108,16 @@ public class EnchantmentsMenu extends BaseMenu {
     }
 
     void handleAddEnchant(Player p, Enchantment enchantment) {
-        ChatPrompts.getInstance().ask(p, "Inserire il livello di "
+        ChatPrompts.getInstance().ask(p, "Enter the level for "
                 + enchantment.getKey().getKey() +
-                "(max. " + enchantment.getMaxLevel() + ") ", (player, message) -> {
+                " (max. " + enchantment.getMaxLevel() + "): ", (player, message) -> {
             if (item == null) return;
 
             int level;
             try {
                 level = Integer.parseInt(message);
             } catch (NumberFormatException e) {
-                HeavenKits.sendMessage(player, "Valore non valido! Inserisci un numero.");
+                HeavenKits.sendMessage(player, "Invalid value! Enter a number.");
                 new EnchantmentsMenu(item, kit).open(player);
                 return;
             }

@@ -31,7 +31,7 @@ public class EditMenu extends BaseMenu {
     private final Map<Integer, ItemTemplate> slotToItem = new HashMap<>();
 
     public EditMenu(KitTemplate kitTemplate) {
-        super(Component.text("Modificando ").color(NamedTextColor.AQUA)
+        super(Component.text("Editing ").color(NamedTextColor.AQUA)
                 .append(Component.text(kitTemplate.getName())),54);
         kit = kitTemplate;
     }
@@ -55,20 +55,20 @@ public class EditMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(45, createItem(Component.text("Imposta il display material del Kit")
+        inv.setItem(45, createItem(Component.text("Set Kit display material")
                 .color(NamedTextColor.GREEN)
                 .decoration(TextDecoration.ITALIC, false), Material.PAINTING, Collections.emptyList(), 1));
-        inv.setItem(49, createItem(Component.text("Aggiungi un nuovo item")
+        inv.setItem(49, createItem(Component.text("Add a new item")
                 .color(NamedTextColor.GREEN)
                 .decoration(TextDecoration.ITALIC, false), Material.GREEN_STAINED_GLASS_PANE, Collections.emptyList(), 1));
-        inv.setItem(48, createItem(Component.text("Imposta Cooldown")
+        inv.setItem(48, createItem(Component.text("Set Cooldown")
                 .color(NamedTextColor.YELLOW)
                 .decoration(TextDecoration.ITALIC, false), Material.CLOCK, Collections.emptyList(), 1));
-        inv.setItem(50, createItem(Component.text("Imposta Permesso")
+        inv.setItem(50, createItem(Component.text("Set Permission")
                 .color(NamedTextColor.RED)
                 .decoration(TextDecoration.ITALIC, false), Material.SHIELD, Collections.emptyList(), 1));
 
-        inv.setItem(53, createItem(Component.text("Torna Indietro")
+        inv.setItem(53, createItem(Component.text("Go Back")
                 .color(NamedTextColor.RED)
                 .decoration(TextDecoration.ITALIC, false), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
     }
@@ -76,10 +76,10 @@ public class EditMenu extends BaseMenu {
     private static @NotNull List<Component> getComponents() {
         return List.of(
                 mm.deserialize(""),
-                mm.deserialize("<gray>(Left-Click)<yellow> Modifica Enchantments").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rinomina Item").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Shift+Right-Click)<yellow> Modifica Quantità").decoration(TextDecoration.ITALIC, false),
-                mm.deserialize("<gray>(Right-Click)<yellow> Rimuovi Item").decoration(TextDecoration.ITALIC, false)
+                mm.deserialize("<gray>(Left-Click)<yellow> Edit Enchantments").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rename Item").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Shift+Right-Click)<yellow> Change Quantity").decoration(TextDecoration.ITALIC, false),
+                mm.deserialize("<gray>(Right-Click)<yellow> Remove Item").decoration(TextDecoration.ITALIC, false)
         );
     }
 
@@ -119,48 +119,48 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleSetDisplayMaterial(Player p){
-        ChatPrompts.getInstance().ask(p, "Inserire l'item da usare come display material: ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Insert the item to use as display material: ", (player, message) -> {
             if (kit == null) return;
 
             Material mat = Material.getMaterial(message.toUpperCase());
             if (mat == null) {
-                HeavenKits.sendMessage(player, "Item non valido!");
+                HeavenKits.sendMessage(player, "Not a valid item!");
                 new EditMenu(kit).open(player);
                 return;
             }
 
             kit.setDisplayMaterial(mat);
 
-            HeavenKits.sendMessage(player, mat.name() + " utilizzato come display material");
+            HeavenKits.sendMessage(player, mat.name() + " used as display material");
             kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
 
     void handleSetPermission(Player p) {
-        ChatPrompts.getInstance().ask(p, "Inserire il permesso per il kit ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Insert permission for kit ", (player, message) -> {
             if (kit == null) return;
 
             kit.setPermission(message);
 
-            sendMessage(p, "Permesso impostato su " + message);
+            sendMessage(player, "Permission set to " + message);
             kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });
     }
 
     void handleSetCooldown(Player p) {
-        ChatPrompts.getInstance().ask(p, "Inserire il cooldown per il kit (es. (7d12h))", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Insert kit's cooldown (eg. (7d12h))", (player, message) -> {
             if (kit == null) return;
 
             try {
                 long cooldownMs = parseTime(message);
                 kit.setCooldown(cooldownMs);
-                sendMessage(p, "Cooldown impostato su " + formatTime(cooldownMs));
+                sendMessage(p, "Cooldown set to " + formatTime(cooldownMs));
                 kitManager.updateKit(kit);
                 new EditMenu(kit).open(player);
             } catch (IllegalArgumentException e) {
-                player.sendMessage("Formato del tempo non valido! Esempio: (7d12h),(10m),(5h15m10s)");
+                player.sendMessage("Time format not valid! Example: (7d12h),(10m),(5h15m10s)");
             }
         });
     }
@@ -170,14 +170,14 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleChangeQty(Player p, ItemTemplate item) {
-        ChatPrompts.getInstance().ask(p, "Inserire la quantità dell'item (max. 64) ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Enter the item quantity (max. 64): ", (player, message) -> {
             if (kit == null || item == null) return;
 
             int qty;
             try {
                 qty = Integer.parseInt(message);
             } catch (NumberFormatException e) {
-                sendMessage(player, "Valore non valido! Inserisci un numero.");
+                sendMessage(player, "Invalid value! Enter a number.");
                 new EditMenu(kit).open(player);
                 return;
             }
@@ -186,7 +186,7 @@ public class EditMenu extends BaseMenu {
             if (qty > 64) qty = 64;
 
             item.setQty(qty);
-            sendMessage(player, "Quantità aggiornata a " + qty);
+            sendMessage(player, "Quantity updated to " + qty);
 
             kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
@@ -194,12 +194,12 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleRemoveItem(Player p, ItemTemplate item) {
-        ChatPrompts.getInstance().ask(p, "Sei sicuro di voler rimuovere " + item.getName() + "? (sì | no)", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Are you sure you want to remove " + item.getName() + "? (yes | no)", (player, message) -> {
             if (kit == null) return;
 
-            if (message.equalsIgnoreCase("si") || message.equalsIgnoreCase("sì")) {
+            if (message.equalsIgnoreCase("yes") || message.equalsIgnoreCase("y")) {
                 kit.getItems().remove(item);
-                HeavenKits.sendMessage(p, "Hai rimosso l'item: " + item.getName());
+                HeavenKits.sendMessage(p, "You removed the item: " + item.getName());
             }
 
             kitManager.updateKit(kit);
@@ -208,7 +208,7 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleRenameItem(Player p, ItemTemplate item) {
-        ChatPrompts.getInstance().ask(p, "Inserire il nuovo nome dell'item: ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Enter the new item name: ", (player, message) -> {
             if (kit == null || item == null) return;
 
             Component newName = mm.deserialize(message);
@@ -216,7 +216,7 @@ public class EditMenu extends BaseMenu {
             item.setName(newName);
 
             sendMessage(player,
-                    Component.text("Hai modificato il nome dell'item in: ").color(NamedTextColor.GREEN)
+                    Component.text("You changed the item name to: ").color(NamedTextColor.GREEN)
                             .append(newName)
             );
 
@@ -226,12 +226,12 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleAddItem(Player p){
-        ChatPrompts.getInstance().ask(p, "Inserire l'item da aggiungere: ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Enter the item to add: ", (player, message) -> {
             if (kit == null) return;
 
             Material mat = Material.getMaterial(message.toUpperCase());
             if (mat == null) {
-                sendMessage(player, "Item non valido!");
+                sendMessage(player, "Invalid item!");
                 new EditMenu(kit).open(player);
                 return;
             }
@@ -239,7 +239,7 @@ public class EditMenu extends BaseMenu {
             ItemStack newItem = new ItemStack(mat);
             Component defaultName = Component.translatable(newItem.translationKey());
             kit.addItem(new ItemTemplate(newItem, defaultName));
-            sendMessage(player, "Item aggiunto al kit: " + mat.name());
+            sendMessage(player, "Item added to kit: " + mat.name());
             kitManager.updateKit(kit);
             new EditMenu(kit).open(player);
         });

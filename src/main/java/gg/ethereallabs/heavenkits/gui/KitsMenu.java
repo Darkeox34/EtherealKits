@@ -107,18 +107,18 @@ public class KitsMenu extends BaseMenu {
 
     private static @NotNull List<Component> getComponents(Player player, KitTemplate kit, long timeLeftMs) {
         List<Component> components = new ArrayList<>();
-        components.add(mm.deserialize("<gray>(Tasto Sinistro)<green> Riscuoti").decoration(TextDecoration.ITALIC, false));
-        components.add(mm.deserialize("<gray>(Tasto Destro)<yellow> Vedi").decoration(TextDecoration.ITALIC, false));
+        components.add(mm.deserialize("<gray>(Left Click)<green> Redeem").decoration(TextDecoration.ITALIC, false));
+        components.add(mm.deserialize("<gray>(Right Click)<yellow> View").decoration(TextDecoration.ITALIC, false));
         components.add(Component.empty());
 
         if (!player.hasPermission(kit.getPermission())) {
-            components.add(mm.deserialize("<red>Non hai il permesso di riscuotere questo Kit!")
+            components.add(mm.deserialize("<red>You don't have permission to redeem this Kit!")
                     .decoration(TextDecoration.ITALIC, false));
-            components.add(mm.deserialize("Visita il nostro store per scoprire i nostri pacchetti!").color(NamedTextColor.GREEN)
+            components.add(mm.deserialize("Visit our store to discover our packages!").color(NamedTextColor.GREEN)
                     .decoration(TextDecoration.ITALIC, false));
         } else {
             if (timeLeftMs <= 0 || player.hasPermission("hk.cooldown.bypass")) {
-                components.add(mm.deserialize("<green>Riscuoti Ora!").decoration(TextDecoration.ITALIC, false));
+                components.add(mm.deserialize("<green>Redeem Now!").decoration(TextDecoration.ITALIC, false));
             } else {
                 components.add(mm.deserialize("<yellow>Cooldown: " + formatRemainingTime(timeLeftMs))
                         .decoration(TextDecoration.ITALIC, false));

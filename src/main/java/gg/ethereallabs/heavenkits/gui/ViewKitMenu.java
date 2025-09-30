@@ -48,7 +48,7 @@ public class ViewKitMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(49, createItem(Component.text("Torna indietro")
+        inv.setItem(49, createItem(Component.text("Go back")
                 .color(NamedTextColor.RED)
                 .decoration(TextDecoration.ITALIC, false), Material.RED_STAINED_GLASS_PANE, Collections.emptyList(), 1));
     }

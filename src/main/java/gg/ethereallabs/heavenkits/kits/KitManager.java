@@ -145,7 +145,7 @@ public class KitManager {
 
     public boolean createKit(String name, CommandSender sender) {
         if (HeavenKits.kitManager.getKit(name) != null) {
-            sendMessage(sender, "<red>Un kit con il nome '<yellow>" + name + "</yellow>' esiste già!");
+            sendMessage(sender, "<red>A kit with the name '<yellow>" + name + "</yellow>' already exists!");
             return false;
         }
 
@@ -159,11 +159,11 @@ public class KitManager {
         return true;
     }
     public void listKits(CommandSender sender) {
-        sendMessage(sender, "Kit Disponibili: ");
+        sendMessage(sender, "Available Kits: ");
         kits.forEach((name, template) -> {
             Component kitComponent = Component.text("- ")
                     .append(template.getDisplayName()
-                            .hoverEvent(HoverEvent.showText(Component.text("Clicca per modificare questo kit")))
+                            .hoverEvent(HoverEvent.showText(Component.text("Click to edit this kit")))
                             .clickEvent(ClickEvent.runCommand("/hk admin edit " + template.getName())));
 
             sender.sendMessage(kitComponent);
@@ -188,12 +188,12 @@ public class KitManager {
 
     public boolean renameKit(String name, String newName, CommandSender sender){
         if (HeavenKits.kitManager.getKit(name) == null) {
-            sendMessage(sender, "<red>Kit '<yellow>" + name + "</yellow>' non trovato!");
+            sendMessage(sender, "<red>Kit '<yellow>" + name + "</yellow>' not found!");
             return false;
         }
 
         if (HeavenKits.kitManager.getKit(newName) != null) {
-            sendMessage(sender, "<red>Un kit con il nome '<yellow>" + newName + "</yellow>' esiste già!");
+            sendMessage(sender, "<red>A kit with the name '<yellow>" + newName + "</yellow>' already exists!");
             return false;
         }
 
@@ -206,7 +206,7 @@ public class KitManager {
 
     public void redeemKit(KitTemplate kit, Player p) {
         if (!p.hasPermission(kit.getPermission())) {
-            p.sendMessage(Component.text("Non hai il permesso per riscattare questo kit.").color(NamedTextColor.RED));
+            p.sendMessage(Component.text("You don't have permission to redeem this kit.").color(NamedTextColor.RED));
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
         }
@@ -220,7 +220,7 @@ public class KitManager {
         if (cooldownUntil != null && currentTime < cooldownUntil && !p.hasPermission("hk.cooldown.bypass")) {
             long timeLeft = cooldownUntil - currentTime;
             p.sendMessage(mm.deserialize(
-                    "<red>Devi aspettare <yellow>" + formatRemainingTime(timeLeft) + "<red> prima di riscattare di nuovo questo kit."
+                    "<red>You must wait <yellow>" + formatRemainingTime(timeLeft) + "<red> before redeeming this kit again."
             ));
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
@@ -237,7 +237,7 @@ public class KitManager {
         }
 
         if (emptySlots < neededSlots) {
-            sendMessage(p, mm.deserialize("Il tuo inventario è pieno, libera almeno " + (neededSlots - emptySlots) + " slot!").color(NamedTextColor.RED));
+            sendMessage(p, mm.deserialize("Your inventory is full, free at least " + (neededSlots - emptySlots) + " slots!").color(NamedTextColor.RED));
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
         }
@@ -270,7 +270,7 @@ public class KitManager {
             kitManager.updatePlayerCooldown(uuid.toString(), kit.getName(), newCooldownUntil);
         }
 
-        sendMessage(p, mm.deserialize("<yellow>Hai riscattato il kit</yellow> ")
+        sendMessage(p, mm.deserialize("<yellow>You redeemed the kit</yellow> ")
                 .append(kit.getDisplayName())
                 .append(Component.text("!")));
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);

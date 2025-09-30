@@ -35,13 +35,13 @@ public class ChatPrompts implements Listener {
 
     public void ask(Player player, String question, BiConsumer<Player, String> onAnswer) {
         player.closeInventory();
-        player.sendMessage(mm.deserialize("<aqua>» " + question + " <gray>(annulla: <red>!cancel<gray>)"));
+        player.sendMessage(mm.deserialize("<aqua>» " + question + " <gray>(cancel: <red>!cancel<gray>)"));
         pending.put(player.getUniqueId(), new Flow(onAnswer));
     }
 
     public void cancel(Player player) {
         pending.remove(player.getUniqueId());
-        player.sendMessage(mm.deserialize("<gray>Operazione cancellata."));
+        player.sendMessage(mm.deserialize("<gray>Operation cancelled."));
     }
 
     @EventHandler

@@ -31,7 +31,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         if (!sender.hasPermission("heavenkits.hk")) {
-            sendMessage(sender, "<red>Non hai il permesso di eseguire questo comando!");
+            sendMessage(sender, "<red>You don't have permission to execute this command!");
             return true;
         }
 
@@ -46,7 +46,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
         if (handler != null) {
             return handler.execute(sender, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sendMessage(sender, "<red>Comando non trovato! Scrivi /hk admin help per avere una lista di tutti i comandi.");
+            sendMessage(sender, "<red>Command not found! Type /hk admin help to get a list of all commands.");
             return true;
         }
     }
@@ -78,7 +78,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
 
     public static void sendDefaultMessage(CommandSender sender) {
         sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>=================== HeavenKits ===================</gradient>"));
-        sender.sendMessage(mm.deserialize("<yellow>/hk admin help</yellow> <gray>- Mostra tutti i comandi disponibili"));
+        sender.sendMessage(mm.deserialize("<yellow>/hk admin help</yellow> <gray>- Show all available commands"));
         sender.sendMessage(mm.deserialize("<gradient:#8A2BE2:#FF00FF>================================================</gradient>"));
     }
 
