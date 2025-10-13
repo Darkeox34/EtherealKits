@@ -9,14 +9,23 @@ version = '1.0'
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        url "https://nexus.phoenixdevt.fr/repository/maven-public/"
+    }
+    flatDir {
+        dirs("libs")
     }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("net.Indyuce:MMOItems-API:6.9.5-SNAPSHOT")
+    compileOnly("io.lumine:MythicLib-dist:1.7.1-SNAPSHOT")
     implementation 'org.mongodb:mongodb-driver-sync:4.11.0'
 }
 

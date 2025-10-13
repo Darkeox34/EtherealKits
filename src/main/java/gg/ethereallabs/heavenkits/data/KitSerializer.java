@@ -5,69 +5,37 @@ import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.gson.GsonComponentSerializer;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bson.Document;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class KitSerializer {
-    private static final GsonComponentSerializer gson = GsonComponentSerializer.gson();
+    private static final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     public static Document serializeKit(KitTemplate kit) {
         List<Document> items = kit.getItems().stream()
                 .map(KitSerializer::serializeItem)
                 .toList();
 
+        List<String> kitLore = kit.getLore() != null
+                ? kit.getLore().stream().map(miniMessage::serialize).toList()
+                : null;
+
         return new Document("name", kit.getName())
-                .append("display_name", gson.serialize(kit.getDisplayName()))
+                .append("display_name", miniMessage.serialize(kit.getDisplayName()))
                 .append("display_material", kit.getDisplayMaterial().toString())
                 .append("cooldown", kit.getCooldown())
                 .append("permission", kit.getPermission())
+                .append("kit_lore", kitLore)
                 .append("items", items);
     }
 
-    public static KitTemplate deserializeKit(Document doc) {
-        String name = doc.getString("name");
-        KitTemplate kit = new KitTemplate(name);
-
-        // Display name
-        if (doc.containsKey("display_name")) {
-            kit.setDisplayName(gson.deserialize(doc.getString("display_name")));
-        }
-
-        // Display material
-        if (doc.containsKey("display_material")) {
-            kit.setDisplayMaterial(Material.valueOf(doc.getString("display_material")));
-        }
-
-        // Cooldown
-        kit.setCooldown(doc.getLong("cooldown"));
-
-        // Permission
-        kit.setPermission(doc.getString("permission"));
-
-        // Items
-        List<?> itemsRaw = (List<?>) doc.get("items");
-        if (itemsRaw != null) {
-            for (Object o : itemsRaw) {
-                if (o instanceof Document itemDoc) {
-                    ItemTemplate item = deserializeItem(itemDoc);
-                    kit.addItem(item);
-                }
-            }
-        }
-        return kit;
-    }
-
-    // Map-based serialization for non-BSON storage backends (e.g., local files)
     public static Map<String, Object> serializeKitToMap(KitTemplate kit) {
         List<Map<String, Object>> items = kit.getItems().stream()
                 .map(KitSerializer::serializeItemToMap)
@@ -75,12 +43,86 @@ public class KitSerializer {
 
         Map<String, Object> map = new HashMap<>();
         map.put("name", kit.getName());
-        map.put("display_name", gson.serialize(kit.getDisplayName()));
+        map.put("display_name", miniMessage.serialize(kit.getDisplayName()));
         map.put("display_material", kit.getDisplayMaterial().toString());
         map.put("cooldown", kit.getCooldown());
         map.put("permission", kit.getPermission());
+        List<String> kitLore = kit.getLore() != null
+                ? kit.getLore().stream().map(miniMessage::serialize).toList()
+                : null;
+        map.put("kit_lore", kitLore);
         map.put("items", items);
         return map;
+    }
+
+    private static Document serializeItem(ItemTemplate item) {
+        Map<String, Integer> enchants = item.getEnchantments().entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().getKey().toString(), Map.Entry::getValue));
+
+        List<String> lore = item.getLore() != null
+                ? item.getLore().stream().map(miniMessage::serialize).toList()
+                : null;
+
+        return new Document("material", item.getItem().getType().toString())
+                .append("name", miniMessage.serialize(item.getName()))
+                .append("qty", item.getQty())
+                .append("lore", lore)
+                .append("enchantments", enchants);
+    }
+
+    private static Map<String, Object> serializeItemToMap(ItemTemplate item) {
+        Map<String, Integer> enchants = item.getEnchantments().entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey().getKey().toString(), Map.Entry::getValue));
+
+        List<String> lore = item.getLore() != null
+                ? item.getLore().stream().map(miniMessage::serialize).toList()
+                : null;
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("material", item.getItem().getType().toString());
+        map.put("name", miniMessage.serialize(item.getName()));
+        map.put("qty", item.getQty());
+        map.put("lore", lore);
+        map.put("enchantments", enchants);
+        return map;
+    }
+
+    // ----------------- DESERIALIZE -----------------
+    public static KitTemplate deserializeKit(Document doc) {
+        String name = doc.getString("name");
+        KitTemplate kit = new KitTemplate(name);
+
+        if (doc.containsKey("display_name")) {
+            kit.setDisplayName(miniMessage.deserialize(doc.getString("display_name")));
+        }
+
+        if (doc.containsKey("display_material")) {
+            kit.setDisplayMaterial(Material.valueOf(doc.getString("display_material")));
+        }
+
+        kit.setCooldown(doc.getLong("cooldown"));
+        kit.setPermission(doc.getString("permission"));
+
+        Object kitLoreObj = doc.get("kit_lore");
+        if (kitLoreObj instanceof List<?> rawLore) {
+            List<Component> lore = rawLore.stream()
+                    .filter(String.class::isInstance)
+                    .map(String.class::cast)
+                    .map(miniMessage::deserialize)
+                    .toList();
+            kit.setLore(lore);
+        }
+
+        Object itemsObj = doc.get("items");
+        if (itemsObj instanceof List<?> rawItems) {
+            for (Object o : rawItems) {
+                if (o instanceof Document itemDoc) {
+                    kit.addItem(deserializeItem(itemDoc));
+                }
+            }
+        }
+
+        return kit;
     }
 
     public static KitTemplate deserializeKitFromMap(Map<String, Object> map) {
@@ -89,7 +131,7 @@ public class KitSerializer {
 
         Object dn = map.get("display_name");
         if (dn instanceof String s) {
-            kit.setDisplayName(gson.deserialize(s));
+            kit.setDisplayName(miniMessage.deserialize(s));
         }
 
         Object dm = map.get("display_material");
@@ -107,43 +149,38 @@ public class KitSerializer {
             kit.setPermission(s);
         }
 
+        Object kitLoreObj = map.get("kit_lore");
+        if (kitLoreObj instanceof List<?> rawLore) {
+            List<Component> lore = new ArrayList<>();
+            for (Object el : rawLore) {
+                if (el instanceof String s) {
+                    lore.add(miniMessage.deserialize(s));
+                }
+            }
+            kit.setLore(lore);
+        }
+
         Object itemsObj = map.get("items");
         if (itemsObj instanceof List<?> rawList) {
             for (Object o : rawList) {
                 if (o instanceof Map<?, ?> itemMapRaw) {
-                    // Convert Map<?, ?> to Map<String, Object>
                     Map<String, Object> itemMap = new HashMap<>();
                     for (Map.Entry<?, ?> e : itemMapRaw.entrySet()) {
                         if (e.getKey() instanceof String key) {
                             itemMap.put(key, e.getValue());
                         }
                     }
-                    ItemTemplate item = deserializeItemFromMap(itemMap);
-                    kit.addItem(item);
+                    kit.addItem(deserializeItemFromMap(itemMap));
                 }
             }
         }
+
         return kit;
-    }
-
-    private static Document serializeItem(ItemTemplate item) {
-        Map<String, Integer> enchants = item.getEnchantments().entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey().getKey().toString(), Map.Entry::getValue));
-
-        List<String> lore = item.getLore() != null
-                ? item.getLore().stream().map(gson::serialize).toList()
-                : null;
-
-        return new Document("material", item.getItem().getType().toString())
-                .append("name", gson.serialize(item.getName()))
-                .append("qty", item.getQty())
-                .append("lore", lore)
-                .append("enchantments", enchants);
     }
 
     private static ItemTemplate deserializeItem(Document doc) {
         Material mat = Material.valueOf(doc.getString("material"));
-        Component name = gson.deserialize(doc.getString("name"));
+        Component name = miniMessage.deserialize(doc.getString("name"));
         ItemTemplate item = new ItemTemplate(new ItemStack(mat), name);
 
         item.setQty(doc.getInteger("qty", 1));
@@ -153,7 +190,7 @@ public class KitSerializer {
             List<Component> lore = loreRaw.stream()
                     .filter(String.class::isInstance)
                     .map(String.class::cast)
-                    .map(gson::deserialize)
+                    .map(miniMessage::deserialize)
                     .toList();
             item.setLore(lore);
         }
@@ -166,8 +203,8 @@ public class KitSerializer {
                     Enchantment enchant = RegistryAccess.registryAccess()
                             .getRegistry(RegistryKey.ENCHANTMENT)
                             .get(key);
-                    if (enchant != null) {
-                        item.addEnchantment(enchant, (Integer) entry.getValue());
+                    if (enchant != null && entry.getValue() instanceof Number n) {
+                        item.addEnchantment(enchant, n.intValue());
                     }
                 }
             }
@@ -176,26 +213,9 @@ public class KitSerializer {
         return item;
     }
 
-    private static Map<String, Object> serializeItemToMap(ItemTemplate item) {
-        Map<String, Integer> enchants = item.getEnchantments().entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey().getKey().toString(), Map.Entry::getValue));
-
-        List<String> lore = item.getLore() != null
-                ? item.getLore().stream().map(gson::serialize).toList()
-                : null;
-
-        Map<String, Object> map = new HashMap<>();
-        map.put("material", item.getItem().getType().toString());
-        map.put("name", gson.serialize(item.getName()));
-        map.put("qty", item.getQty());
-        map.put("lore", lore);
-        map.put("enchantments", enchants);
-        return map;
-    }
-
     private static ItemTemplate deserializeItemFromMap(Map<String, Object> map) {
         Material mat = Material.valueOf((String) map.get("material"));
-        Component name = gson.deserialize((String) map.get("name"));
+        Component name = miniMessage.deserialize((String) map.get("name"));
         ItemTemplate item = new ItemTemplate(new ItemStack(mat), name);
 
         Object qtyObj = map.get("qty");
@@ -206,7 +226,7 @@ public class KitSerializer {
             List<Component> lore = new ArrayList<>();
             for (Object el : loreRaw) {
                 if (el instanceof String s) {
-                    lore.add(gson.deserialize(s));
+                    lore.add(miniMessage.deserialize(s));
                 }
             }
             item.setLore(lore);

@@ -58,15 +58,25 @@ public class EditKitsMenu extends BaseMenu {
     private static @NotNull List<Component> getComponents(Map.Entry<String, KitTemplate> entry) {
         KitTemplate kit = entry.getValue();
 
-        return List.of(
-                HeavenKits.mm.deserialize("<gray>(Left-Click)<yellow> Edit").decoration(TextDecoration.ITALIC, false),
-                HeavenKits.mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rename").decoration(TextDecoration.ITALIC, false),
-                HeavenKits.mm.deserialize("<gray>(Shift+Right-Click)<yellow> Rename DisplayName").decoration(TextDecoration.ITALIC, false),
-                HeavenKits.mm.deserialize("<gray>(Right-Click)<yellow> Remove").decoration(TextDecoration.ITALIC, false),
-                Component.empty(),
-                HeavenKits.mm.deserialize("<yellow>Cooldown: " + HeavenKits.formatTime(kit.getCooldown())).decoration(TextDecoration.ITALIC, false),
-                HeavenKits.mm.deserialize("<yellow>Permission: " + kit.getPermission()).decoration(TextDecoration.ITALIC, false)
-        );
+        List<Component> kitLore = kit.getLore();
+        List<Component> components = new ArrayList<>();
+
+        components.add(HeavenKits.mm.deserialize("<gray>(Left-Click)<yellow> Edit").decoration(TextDecoration.ITALIC, false));
+        components.add(HeavenKits.mm.deserialize("<gray>(Shift+Left-Click)<yellow> Rename").decoration(TextDecoration.ITALIC, false));
+        components.add(HeavenKits.mm.deserialize("<gray>(Shift+Right-Click)<yellow> Rename DisplayName").decoration(TextDecoration.ITALIC, false));
+        components.add(HeavenKits.mm.deserialize("<gray>(Right-Click)<yellow> Remove").decoration(TextDecoration.ITALIC, false));
+        components.add(Component.empty());
+        components.add(HeavenKits.mm.deserialize("<yellow>Cooldown: " + HeavenKits.formatTime(kit.getCooldown())).decoration(TextDecoration.ITALIC, false));
+        components.add(HeavenKits.mm.deserialize("<yellow>Permission: " + kit.getPermission()).decoration(TextDecoration.ITALIC, false));
+        components.add(HeavenKits.mm.deserialize("<yellow>Lore: "));
+        if(kitLore == null){
+            components.add(HeavenKits.mm.deserialize("<yellow>None"));
+        }
+        else{
+            components.addAll(kitLore);
+        }
+
+        return components;
     }
 
     @Override

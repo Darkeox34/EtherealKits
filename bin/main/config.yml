@@ -1,0 +1,7 @@
+mongodb:
+  enabled: false
+  host: localhost
+  port: 27017
+  database: minecraft
+  username: ""
+  password: ""

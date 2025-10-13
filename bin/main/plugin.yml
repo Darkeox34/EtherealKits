@@ -2,7 +2,6 @@ name: HeavenKits
 version: '1.0'
 main: gg.ethereallabs.heavenkits.HeavenKits
 api-version: '1.21'
-soft-depend: MMOItems
 commands:
   hk:
     description: Main command for HeavenKits

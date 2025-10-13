@@ -5,6 +5,9 @@ import gg.ethereallabs.heavenkits.gui.models.BaseMenu;
 import gg.ethereallabs.heavenkits.gui.models.ChatPrompts;
 import gg.ethereallabs.heavenkits.kits.models.ItemTemplate;
 import gg.ethereallabs.heavenkits.kits.models.KitTemplate;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.Type;
+import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -13,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import java.util.function.BiConsumer;
 
 import static gg.ethereallabs.heavenkits.HeavenKits.mm;
 
@@ -23,7 +27,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 public class EditMenu extends BaseMenu {
-    private final List<Integer> slotsList = IntStream.rangeClosed(0, 44)
+    private final List<Integer> slotsList = IntStream.rangeClosed(0, 35)
             .boxed()
             .toList();
 
@@ -55,18 +59,31 @@ public class EditMenu extends BaseMenu {
             i++;
         }
 
-        inv.setItem(45, createItem(Component.text("Set Kit display material")
+        for(int j = 36; j < 45; j++) {
+            inv.setItem(j, createItem(Component.text("")
+                    .color(NamedTextColor.GRAY)
+                    .decoration(TextDecoration.ITALIC, false), Material.GRAY_STAINED_GLASS_PANE, Collections.emptyList(), 1));
+        }
+
+
+        inv.setItem(45, createItem(Component.text("Set Display Material")
                 .color(NamedTextColor.GREEN)
                 .decoration(TextDecoration.ITALIC, false), Material.PAINTING, Collections.emptyList(), 1));
         inv.setItem(49, createItem(Component.text("Add a new item")
                 .color(NamedTextColor.GREEN)
                 .decoration(TextDecoration.ITALIC, false), Material.GREEN_STAINED_GLASS_PANE, Collections.emptyList(), 1));
+        inv.setItem(47, createItem(Component.text("Add multiple items")
+                .color(NamedTextColor.YELLOW)
+                .decoration(TextDecoration.ITALIC, false), Material.CHEST, Collections.emptyList(), 1));
         inv.setItem(48, createItem(Component.text("Set Cooldown")
                 .color(NamedTextColor.YELLOW)
                 .decoration(TextDecoration.ITALIC, false), Material.CLOCK, Collections.emptyList(), 1));
         inv.setItem(50, createItem(Component.text("Set Permission")
                 .color(NamedTextColor.RED)
                 .decoration(TextDecoration.ITALIC, false), Material.SHIELD, Collections.emptyList(), 1));
+        inv.setItem(51, createItem(Component.text("Set Kit Lore")
+                .color(NamedTextColor.RED)
+                .decoration(TextDecoration.ITALIC, false), Material.MAP, Collections.emptyList(), 1));
 
         inv.setItem(53, createItem(Component.text("Go Back")
                 .color(NamedTextColor.RED)
@@ -115,6 +132,12 @@ public class EditMenu extends BaseMenu {
         }
         else if (slot == 45) {
             handleSetDisplayMaterial(p);
+        }
+        else if (slot == 47) {
+            new MultiItemsMenu(kit).open(p);
+        }
+        else if (slot == 51) {
+            handleSetKitLore(p);
         }
     }
 
@@ -226,22 +249,90 @@ public class EditMenu extends BaseMenu {
     }
 
     void handleAddItem(Player p){
-        ChatPrompts.getInstance().ask(p, "Enter the item to add: ", (player, message) -> {
+        ChatPrompts.getInstance().ask(p, "Enter the item to add (Material or CATEGORY.ID for MMOItems): ", (player, message) -> {
             if (kit == null) return;
+            ItemStack newItem = null;
 
-            Material mat = Material.getMaterial(message.toUpperCase());
-            if (mat == null) {
-                HeavenKits.sendMessage(player, "Invalid item!");
+            if (message.contains(".")) {
+                String[] parts = message.split("\\.", 2);
+                String category = parts[0];
+                String id = parts.length > 1 ? parts[1] : "";
+                Type type = Type.get(category.toUpperCase());
+                if (type == null) {
+                    HeavenKits.sendMessage(player, "Invalid category!");
+                    new EditMenu(kit).open(player);
+                    return;
+                }
+                MMOItem item = MMOItems.plugin.getMMOItem(type, id.toUpperCase());
+
+                if(item == null){
+                    HeavenKits.sendMessage(player, "Invalid item!");
+                    new EditMenu(kit).open(player);
+                    return;
+                }
+
+                newItem = item.newBuilder().build();
+            }
+
+            if (newItem == null) {
+                Material mat = Material.getMaterial(message.toUpperCase());
+                if (mat == null) {
+                    HeavenKits.sendMessage(player, "Invalid item!");
+                    new EditMenu(kit).open(player);
+                    return;
+                }
+                newItem = new ItemStack(mat);
+            }
+
+            Component defaultName = Component.translatable(newItem.translationKey());
+            kit.addItem(new ItemTemplate(newItem, defaultName));
+            HeavenKits.sendMessage(player, "Item added to kit.");
+            HeavenKits.getInstance().getKitManager().updateKit(kit);
+            new EditMenu(kit).open(player);
+        });
+    }
+
+    void handleSetKitLore(Player p) {
+        ChatPrompts.getInstance().ask(p, "How many lines would you like to add?", (player, countMsg) -> {
+            int count;
+            try {
+                count = Integer.parseInt(countMsg);
+            } catch (NumberFormatException ex) {
+                HeavenKits.sendMessage(player, "Not a valid value! Please insert a number.");
                 new EditMenu(kit).open(player);
                 return;
             }
 
-            ItemStack newItem = new ItemStack(mat);
-            Component defaultName = Component.translatable(newItem.translationKey());
-            kit.addItem(new ItemTemplate(newItem, defaultName));
-            HeavenKits.sendMessage(player, "Item added to kit: " + mat.name());
-            HeavenKits.getInstance().getKitManager().updateKit(kit);
-            new EditMenu(kit).open(player);
+            if (count < 0) count = 0;
+            if (count > 36) count = 36;
+
+            List<Component> loreLines = new java.util.ArrayList<>();
+
+            final int total = count;
+            BiConsumer<Player, String>[] steps = new BiConsumer[total];
+            for (int i = 0; i < total; i++) {
+                final int idx = i;
+                steps[i] = (pl, msg) -> {
+                    loreLines.add(HeavenKits.mm.deserialize(msg));
+                    if (idx + 1 < total) {
+                        ChatPrompts.getInstance().ask(pl, "Insert lore for line n. " + (idx + 2) + ":", steps[idx + 1]);
+                    } else {
+                        kit.setLore(loreLines);
+                        HeavenKits.getInstance().getKitManager().updateKit(kit);
+                        HeavenKits.sendMessage(pl, "Kit Lore updated.");
+                        new EditMenu(kit).open(pl);
+                    }
+                };
+            }
+
+            if (total == 0) {
+                kit.setLore(java.util.Collections.emptyList());
+                HeavenKits.getInstance().getKitManager().updateKit(kit);
+                HeavenKits.sendMessage(player, "Lore removed.");
+                new EditMenu(kit).open(player);
+            } else {
+                ChatPrompts.getInstance().ask(player, "Insert lore for line n. 1:", steps[0]);
+            }
         });
     }
 }

@@ -14,6 +14,7 @@ public class KitTemplate {
     private final List<ItemTemplate> items;
     private long cooldown;
     private String permission = "None";
+    private List<Component> lore = new ArrayList<>();
 
 
     public KitTemplate(String name) {
@@ -30,6 +31,7 @@ public class KitTemplate {
     public List<ItemTemplate> getItems() { return items; }
     public long getCooldown() { return cooldown; }
     public String getPermission() { return permission; }
+    public List<Component> getLore() { return lore; }
 
     public void setName(String name) {
         this.name = name;
@@ -49,6 +51,10 @@ public class KitTemplate {
     }
     public void setCooldown(long cooldown) {
         this.cooldown = cooldown;
+    }
+
+    public void setLore(List<Component> lore) {
+        this.lore = lore != null ? lore : new ArrayList<>();
     }
 
     public void addItem(ItemTemplate item) {
