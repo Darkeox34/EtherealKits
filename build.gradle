@@ -36,9 +36,9 @@ tasks {
 }
 
 tasks.shadowJar {
-    archiveBaseName.set('HeavenKits')
+    archiveBaseName.set('EtherealKits')
     archiveClassifier.set('')
-    archiveVersion.set('1.0')
+    archiveVersion.set('1.0.0')
     mergeServiceFiles()
 }
 
