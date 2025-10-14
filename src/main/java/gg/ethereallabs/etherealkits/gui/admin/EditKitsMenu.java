@@ -78,9 +78,9 @@ public class EditKitsMenu extends BaseMenu {
         components.add(Component.empty());
         components.add(EtherealKits.mm.deserialize("<yellow>Cooldown: " + EtherealKits.formatTime(kit.getCooldown())).decoration(TextDecoration.ITALIC, false));
         components.add(EtherealKits.mm.deserialize("<yellow>Permission: " + kit.getPermission()).decoration(TextDecoration.ITALIC, false));
-        components.add(EtherealKits.mm.deserialize("<yellow>Lore: "));
-        if(kitLore == null){
-            components.add(EtherealKits.mm.deserialize("<yellow>None"));
+        components.add(EtherealKits.mm.deserialize("<yellow>Lore: ").decoration(TextDecoration.ITALIC, false));
+        if(kitLore.isEmpty()){
+            components.add(EtherealKits.mm.deserialize("<yellow>None").decoration(TextDecoration.ITALIC, false));
         }
         else{
             components.addAll(fixedLore);

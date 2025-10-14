@@ -8,6 +8,7 @@ import gg.ethereallabs.etherealkits.data.Storage;
 import gg.ethereallabs.etherealkits.events.PlayerEvents;
 import gg.ethereallabs.etherealkits.gui.models.ChatPrompts;
 import gg.ethereallabs.etherealkits.kits.KitManager;
+import net.Indyuce.mmoitems.MMOItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public final class EtherealKits extends JavaPlugin {
     private KitManager kitManager;
     private MongoDB mongo;
     private Storage storage;
+    private static boolean mmoItemsEnabled = false;
     public static final MiniMessage mm = MiniMessage.miniMessage();
 
 
@@ -33,6 +35,13 @@ public final class EtherealKits extends JavaPlugin {
 
         saveDefaultConfig();
         FileConfiguration config = getConfig();
+
+        if (getServer().getPluginManager().getPlugin("MMOItems") != null) {
+            getLogger().info("MMOItems found! Enabling integration...");
+            mmoItemsEnabled = true;
+        } else {
+            getLogger().warning("MMOItems not found, skipping integration.");
+        }
 
         boolean mongoEnabled = config.getBoolean("mongodb.enabled", false);
         if (mongoEnabled) {
@@ -73,12 +82,12 @@ public final class EtherealKits extends JavaPlugin {
     }
 
     public static void sendMessage(CommandSender sender, String message) {
-        Component component = mm.deserialize("<gradient:#8A2BE2:#FF00FF:#00FF7F:#FFFF00:#FFA500>EtherealKits ></gradient> <yellow>" + message);
+        Component component = mm.deserialize("<gradient:#499BF9:#CB37E8>EtherealKits ></gradient> <yellow>" + message);
         sender.sendMessage(component);
     }
 
     public static void sendMessage(CommandSender sender, Component message) {
-        Component prefix = mm.deserialize("<gradient:#8A2BE2:#FF00FF:#00FF7F:#FFFF00:#FFA500>EtherealKits ></gradient> <yellow>");
+        Component prefix = mm.deserialize("<gradient:#499BF9:#CB37E8>EtherealKits ></gradient> <yellow>");
         Component fullMessage = prefix.append(message);
         sender.sendMessage(fullMessage);
     }
@@ -165,5 +174,7 @@ public final class EtherealKits extends JavaPlugin {
     public Storage getStorage() {
         return storage;
     }
+
+    public static boolean isMMOItemsEnabled() { return mmoItemsEnabled; }
 
 }

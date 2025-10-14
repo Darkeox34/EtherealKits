@@ -254,19 +254,24 @@ public class EditMenu extends BaseMenu {
             ItemStack newItem = null;
 
             if (message.contains(".")) {
+                if(!EtherealKits.isMMOItemsEnabled()){
+                    EtherealKits.sendMessage(player, "<red>Invalid item! Are you trying to add a MMOItem? EtherealKits failed to hook it during startup.");
+                    return;
+                }
+
                 String[] parts = message.split("\\.", 2);
                 String category = parts[0];
                 String id = parts.length > 1 ? parts[1] : "";
                 Type type = Type.get(category.toUpperCase());
                 if (type == null) {
-                    EtherealKits.sendMessage(player, "Invalid category!");
+                    EtherealKits.sendMessage(player, "<red>Invalid category!");
                     new EditMenu(kit).open(player);
                     return;
                 }
                 MMOItem item = MMOItems.plugin.getMMOItem(type, id.toUpperCase());
 
                 if(item == null){
-                    EtherealKits.sendMessage(player, "Invalid item!");
+                    EtherealKits.sendMessage(player, "<red>Invalid item!");
                     new EditMenu(kit).open(player);
                     return;
                 }
@@ -277,7 +282,7 @@ public class EditMenu extends BaseMenu {
             if (newItem == null) {
                 Material mat = Material.getMaterial(message.toUpperCase());
                 if (mat == null) {
-                    EtherealKits.sendMessage(player, "Invalid item!");
+                    EtherealKits.sendMessage(player, "<red>Invalid item!");
                     new EditMenu(kit).open(player);
                     return;
                 }
@@ -286,7 +291,7 @@ public class EditMenu extends BaseMenu {
 
             Component defaultName = Component.translatable(newItem.translationKey());
             kit.addItem(new ItemTemplate(newItem, defaultName));
-            EtherealKits.sendMessage(player, "Item added to kit.");
+            EtherealKits.sendMessage(player, "<red>Item added to kit.");
             EtherealKits.getInstance().getKitManager().updateKit(kit);
             new EditMenu(kit).open(player);
         });

@@ -14,7 +14,7 @@ public class KitTemplate {
     private final List<ItemTemplate> items;
     private long cooldown;
     private String permission = "None";
-    private List<Component> lore = null;
+    private List<Component> lore = new ArrayList<>();
 
 
     public KitTemplate(String name) {
