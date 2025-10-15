@@ -97,7 +97,7 @@ public final class EtherealKits extends JavaPlugin {
     }
 
     public static void sendPlayerMessage(CommandSender sender, String message) {
-        Component component = mm.deserialize(Configs.getPrefix() + message);
+        Component component = mm.deserialize(Configs.getPrefix() + " " + message);
         sender.sendMessage(component);
     }
 

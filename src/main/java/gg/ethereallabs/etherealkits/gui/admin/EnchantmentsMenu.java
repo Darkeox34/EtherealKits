@@ -5,8 +5,6 @@ import gg.ethereallabs.etherealkits.gui.models.BaseMenu;
 import gg.ethereallabs.etherealkits.gui.models.ChatPrompts;
 import gg.ethereallabs.etherealkits.kits.models.ItemTemplate;
 import gg.ethereallabs.etherealkits.kits.models.KitTemplate;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
@@ -44,10 +42,8 @@ public class EnchantmentsMenu extends BaseMenu {
         slotToEnchant.clear();
         int i = 0;
 
-        List<Enchantment> sortedEnchants = RegistryAccess.registryAccess()
-                .getRegistry(RegistryKey.ENCHANTMENT)
-                .stream()
-                .sorted(Comparator.comparing(enchant -> enchant.getKey().getKey()))
+        List<Enchantment> sortedEnchants = Arrays.stream(Enchantment.values())
+                .sorted(Comparator.comparing(e -> e.getKey().getKey()))
                 .toList();
 
         for (Enchantment enchant : sortedEnchants) {
@@ -71,7 +67,7 @@ public class EnchantmentsMenu extends BaseMenu {
 
             ItemMeta meta = material.getItemMeta();
             if (meta != null) {
-                meta.customName(name);
+                meta.displayName(name);
                 material.setItemMeta(meta);
             }
             int slot = slotsList.get(i);

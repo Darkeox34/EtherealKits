@@ -1,7 +1,7 @@
 name: EtherealKits
 version: '1.0'
 main: gg.ethereallabs.etherealkits.EtherealKits
-api-version: '1.21'
+api-version: '1.19'
 soft-depend: MMOItems
 commands:
   kit:

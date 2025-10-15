@@ -2,8 +2,6 @@ package gg.ethereallabs.etherealkits.data.storage;
 
 import gg.ethereallabs.etherealkits.kits.models.ItemTemplate;
 import gg.ethereallabs.etherealkits.kits.models.KitTemplate;
-import io.papermc.paper.registry.RegistryAccess;
-import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bson.Document;
@@ -200,9 +198,7 @@ public class KitSerializer {
             for (Map.Entry<String, Object> entry : enchantsDoc.entrySet()) {
                 NamespacedKey key = NamespacedKey.fromString(entry.getKey());
                 if (key != null) {
-                    Enchantment enchant = RegistryAccess.registryAccess()
-                            .getRegistry(RegistryKey.ENCHANTMENT)
-                            .get(key);
+                    Enchantment enchant = Enchantment.getByKey(key);
                     if (enchant != null && entry.getValue() instanceof Number n) {
                         item.addEnchantment(enchant, n.intValue());
                     }
@@ -238,9 +234,7 @@ public class KitSerializer {
                 if (entry.getKey() instanceof String key && entry.getValue() instanceof Number n) {
                     NamespacedKey ns = NamespacedKey.fromString(key);
                     if (ns != null) {
-                        Enchantment enchant = RegistryAccess.registryAccess()
-                                .getRegistry(RegistryKey.ENCHANTMENT)
-                                .get(ns);
+                        Enchantment enchant = Enchantment.getByKey(ns);
                         if (enchant != null) {
                             item.addEnchantment(enchant, n.intValue());
                         }

@@ -71,7 +71,7 @@ public abstract class BaseMenu implements Listener {
         ItemMeta meta = item.getItemMeta();
         item.setAmount(qty);
         if (meta != null) {
-            meta.customName(name);
+            meta.displayName(name);
             meta.lore(lore);
             item.setItemMeta(meta);
         }
@@ -84,7 +84,7 @@ public abstract class BaseMenu implements Listener {
         ItemMeta meta = item.getItemMeta();
         item.setAmount(qty);
         if (meta != null) {
-            meta.customName(name);
+            meta.displayName(name);
             meta.lore(lore);
 
             if (enchants != null) {

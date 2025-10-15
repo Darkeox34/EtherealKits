@@ -1,9 +1,10 @@
-name: HeavenKits
+name: EtherealKits
 version: '1.0'
-main: gg.ethereallabs.heavenkits.HeavenKits
-api-version: '1.21'
+main: gg.ethereallabs.etherealkits.EtherealKits
+api-version: '1.13'
+soft-depend: MMOItems
 commands:
-  hk:
-    description: Main command for HeavenKits
-    usage: /hk
-    aliases: [heavenkits]
+  kit:
+    description: Main command for EtherealKits
+    usage: /kit
+    aliases: [etherealkits]
