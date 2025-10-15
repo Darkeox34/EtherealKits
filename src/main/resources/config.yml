@@ -5,3 +5,5 @@ mongodb:
   database: minecraft
   username: ""
   password: ""
+messages:
+  prefix: "<gradient:#499BF9:#CB37E8>EtherealKits ><yellow>"

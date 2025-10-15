@@ -1,14 +1,13 @@
 package gg.ethereallabs.etherealkits;
 
 import gg.ethereallabs.etherealkits.commands.CommandRegistry;
-import gg.ethereallabs.etherealkits.data.FileStorage;
-import gg.ethereallabs.etherealkits.data.MongoDB;
-import gg.ethereallabs.etherealkits.data.MongoStorage;
-import gg.ethereallabs.etherealkits.data.Storage;
+import gg.ethereallabs.etherealkits.data.*;
+import gg.ethereallabs.etherealkits.data.storage.FileStorage;
+import gg.ethereallabs.etherealkits.data.storage.MongoStorage;
+import gg.ethereallabs.etherealkits.data.storage.Storage;
 import gg.ethereallabs.etherealkits.events.PlayerEvents;
 import gg.ethereallabs.etherealkits.gui.models.ChatPrompts;
 import gg.ethereallabs.etherealkits.kits.KitManager;
-import net.Indyuce.mmoitems.MMOItems;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
@@ -23,6 +22,7 @@ import java.util.regex.Pattern;
 public final class EtherealKits extends JavaPlugin {
     private static EtherealKits instance;
     private KitManager kitManager;
+    private ConfigManager configManager;
     private MongoDB mongo;
     private Storage storage;
     private static boolean mmoItemsEnabled = false;
@@ -42,6 +42,10 @@ public final class EtherealKits extends JavaPlugin {
         } else {
             getLogger().warning("MMOItems not found, skipping integration.");
         }
+
+        configManager = new ConfigManager(config);
+
+        configManager.loadConfig();
 
         boolean mongoEnabled = config.getBoolean("mongodb.enabled", false);
         if (mongoEnabled) {
@@ -90,6 +94,11 @@ public final class EtherealKits extends JavaPlugin {
         Component prefix = mm.deserialize("<gradient:#499BF9:#CB37E8>EtherealKits ></gradient> <yellow>");
         Component fullMessage = prefix.append(message);
         sender.sendMessage(fullMessage);
+    }
+
+    public static void sendPlayerMessage(CommandSender sender, String message) {
+        Component component = mm.deserialize(Configs.getPrefix() + message);
+        sender.sendMessage(component);
     }
 
     public static long parseTime(String input) throws IllegalArgumentException {
@@ -167,6 +176,10 @@ public final class EtherealKits extends JavaPlugin {
         return kitManager;
     }
 
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
     public MongoDB getMongo() {
         return mongo;
     }
@@ -176,5 +189,4 @@ public final class EtherealKits extends JavaPlugin {
     }
 
     public static boolean isMMOItemsEnabled() { return mmoItemsEnabled; }
-
 }

@@ -52,7 +52,7 @@ public class CommandRegistry implements CommandExecutor, TabCompleter {
         if (handler != null) {
             return handler.execute(sender, Arrays.copyOfRange(args, 1, args.length));
         } else {
-            sendMessage(sender, "<red>Command not found! Type /kit admin help to get a list of all commands.");
+            sendMessage(sender, "<red>Command not found!");
             return true;
         }
     }

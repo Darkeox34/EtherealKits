@@ -1,7 +1,7 @@
 package gg.ethereallabs.etherealkits.kits;
 
 import gg.ethereallabs.etherealkits.EtherealKits;
-import gg.ethereallabs.etherealkits.data.Storage;
+import gg.ethereallabs.etherealkits.data.storage.Storage;
 import gg.ethereallabs.etherealkits.kits.models.ItemTemplate;
 import gg.ethereallabs.etherealkits.kits.models.KitTemplate;
 import net.kyori.adventure.text.Component;
@@ -139,7 +139,7 @@ public class KitManager {
 
     public void redeemKit(KitTemplate kit, Player p) {
         if (!p.hasPermission(kit.getPermission())) {
-            p.sendMessage(Component.text("You don't have permission to redeem this kit.").color(NamedTextColor.RED));
+            sendPlayerMessage(p, "<red>You don't have permission to redeem this kit.");
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
         }
@@ -152,9 +152,8 @@ public class KitManager {
         Long cooldownUntil = playerCooldowns.get(kit.getName());
         if (cooldownUntil != null && currentTime < cooldownUntil && !p.hasPermission("hk.cooldown.bypass")) {
             long timeLeft = cooldownUntil - currentTime;
-            p.sendMessage(mm.deserialize(
-                    "<red>You must wait <yellow>" + formatRemainingTime(timeLeft) + "<red> before redeeming this kit again."
-            ));
+            sendPlayerMessage(p,"<red>You must wait <yellow>" + formatRemainingTime(timeLeft) + "<red> before redeeming this kit again."
+            );
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
         }
@@ -170,7 +169,7 @@ public class KitManager {
         }
 
         if (emptySlots < neededSlots) {
-            sendMessage(p, mm.deserialize("Your inventory is full, free at least " + (neededSlots - emptySlots) + " slots!").color(NamedTextColor.RED));
+            sendPlayerMessage(p, "Your inventory is full, free at least " + (neededSlots - emptySlots) + " slots!");
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_NO, 1, 1);
             return;
         }
@@ -203,9 +202,7 @@ public class KitManager {
             EtherealKits.getInstance().getKitManager().updatePlayerCooldown(uuid.toString(), kit.getName(), newCooldownUntil);
         }
 
-        sendMessage(p, mm.deserialize("<yellow>You redeemed the kit</yellow> ")
-                .append(kit.getDisplayName())
-                .append(Component.text("!")));
+        sendPlayerMessage(p,"<yellow>You have redeemed the kit</yellow> " + mm.serialize(kit.getDisplayName()) + "!");
         p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1, 1);
     }
 

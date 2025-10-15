@@ -1,8 +1,9 @@
-package gg.ethereallabs.etherealkits.data;
+package gg.ethereallabs.etherealkits.data.storage;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.ReplaceOptions;
+import gg.ethereallabs.etherealkits.data.MongoDB;
 import gg.ethereallabs.etherealkits.kits.models.KitTemplate;
 import org.bson.Document;
 

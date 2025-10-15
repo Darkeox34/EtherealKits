@@ -1,4 +1,4 @@
-package gg.ethereallabs.etherealkits.data;
+package gg.ethereallabs.etherealkits.data.storage;
 
 import gg.ethereallabs.etherealkits.EtherealKits;
 import gg.ethereallabs.etherealkits.kits.models.KitTemplate;

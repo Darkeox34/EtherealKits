@@ -102,7 +102,8 @@ public class KitsMenu extends BaseMenu {
     }
 
     private static @NotNull List<Component> getComponents(Player player, KitTemplate kit, long timeLeftMs) {
-        List<Component> components = new ArrayList<>();
+        List<Component> components = new ArrayList<>(kit.getLore());
+        components.add(Component.empty());
         components.add(mm.deserialize("<gray>(Left Click)<green> Redeem").decoration(TextDecoration.ITALIC, false));
         components.add(mm.deserialize("<gray>(Right Click)<yellow> View").decoration(TextDecoration.ITALIC, false));
         components.add(Component.empty());
